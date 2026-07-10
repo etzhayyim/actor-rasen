@@ -1,3 +1,5 @@
 # runtime append-only genome ledger (content-addressed commit-DAG) + generated readouts —
 # machine-local, resume-safe, regenerable from the committed seed; never committed.
 data/persisted/
+
+.cpcache/
