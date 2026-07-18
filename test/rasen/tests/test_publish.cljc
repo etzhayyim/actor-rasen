@@ -5,10 +5,7 @@
   artifact-entry shaping) and the IO-leg with an injected dry-run ipfs-fn so no
   real IPFS daemon or network is needed.
 
-  Parity smoke: the Python publish.py is a thin orchestrator with limited pure state;
-  we pin the manifest structure and PUBLISH.md shape against hand-checked expectations
-  rather than a round-trip diff (the cid.py↔cid.cljc parity was already proven in
-  test_cid.cljc)."
+  Pins the manifest structure and PUBLISH.md shape against hand-checked expectations."
   (:require [clojure.test :refer [deftest is testing run-tests]]
             [clojure.string :as str]
             [rasen.methods.publish :as P]
@@ -181,7 +178,6 @@
 
 (deftest test-publish-md-parity-smoke
   ;; Hand-check: the PUBLISH.md must contain the ADR and the CID.
-  ;; This mirrors what publish.py._publish_md produces (same structure).
   (let [cid "bafybeiabc123testcidparity"
         md  (P/publish-md {"actor" "rasen" "adr" "2606101000"
                             "published_at" "2026-06-22T00:00:00Z"
@@ -192,14 +188,13 @@
                                                     "bytes" 2000 "cid" "bafydatoms"}}
                             "ipns"      nil
                             "gateways"  P/gateways})]
-    ;; These are verbatim lines from publish.py._publish_md (same expected text)
     (is (str/includes? md "# rasen 螺旋 — published public-genetics graph (80-data/genome)"))
     (is (str/includes? md "ADR-2606101000"))
     (is (str/includes? md cid))
     (is (str/includes? md "ipfs.io/ipfs/"))
     (is (str/includes? md "dweb.link/ipfs/"))
     (is (str/includes? md "cloudflare-ipfs.com/ipfs/"))
-    (is (str/includes? md "cid.py graph.edn"))))
+    (is (str/includes? md "rasen.methods.cid graph.edn"))))
 
 (when (= *file* (System/getProperty "babashka.file"))
   (let [r (run-tests 'rasen.tests.test-publish)]

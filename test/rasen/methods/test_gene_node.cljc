@@ -1,6 +1,6 @@
 #!/usr/bin/env bb
 ;; rasen 螺旋 — validation of the MyGene.info → gene-node ingest mapping.
-;; Run:  bb --classpath 20-actors 20-actors/rasen/methods/test_gene_node.cljc
+;; Run: bb test
 (ns rasen.methods.test-gene-node
   "Validation of gene-node-from-mygene — the ingest mapping that turns a MyGene.info hit into a
   rasen genome graph node. It had no test. Pins the field mapping, the TWO Ensembl record shapes

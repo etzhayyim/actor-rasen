@@ -1,6 +1,6 @@
 #!/usr/bin/env bb
 ;; rasen 螺旋 — genome-ledger persistence + heartbeat tests.
-;; Run:  bb --classpath 20-actors 20-actors/rasen/tests/test_kotoba.cljc
+;; Run: bb test
 (ns rasen.tests.test-kotoba
   (:require [rasen.methods.kotoba :as k]
             [rasen.methods.autorun :as auto]

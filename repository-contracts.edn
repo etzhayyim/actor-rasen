@@ -1,0 +1,7 @@
+{:canonical :edn
+ :required ["actor.edn" "identity.edn" "manifest.edn" "schema/genome-ontology.edn"
+            "kotoba.app.edn" "dependencies.edn" "data/seed-genome-graph.kotoba.edn"]
+ :wire-json ["wire/fixtures/mygene_brca1_go.json" "wire/fixtures/myvariant_rs334.json"
+             "wire/fixtures/reactome_brca1.json"]
+ :forbidden-extensions [".go" ".sh" ".wasm" ".jsonld" ".bpmn"]
+ :forbidden-files ["go.mod" "go.sum"]}

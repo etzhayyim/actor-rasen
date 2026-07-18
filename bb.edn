@@ -1,5 +1,5 @@
-{:paths ["src"]
+{:paths ["src" "test"]
  :deps {org.kotoba-lang/io-multiformats
         {:git/url "https://github.com/kotoba-lang/io-multiformats.git"
          :git/sha "af315519c0ae181da9e8dc532abc2d22c782efd4"}}
- :aliases {:test {:extra-paths ["test"]}}}
+ :tasks {test {:task (load-file "run_tests.clj")}}}

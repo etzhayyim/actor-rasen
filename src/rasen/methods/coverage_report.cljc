@@ -57,7 +57,9 @@
   "Python f'{x:.2e}' — scientific notation, 2 fraction digits, lowercase e, signed 2+ exp.
   Java %.2e gives e.g. \"8.00e-04\" already matching Python's two-digit signed exponent."
   [x]
-  (format "%.2e" (double x)))
+  ;; clj %.2e == cljs Number.toExponential(2) (both: mantissa.2digits 'e' signed-2+digit exp).
+  #?(:clj  (format "%.2e" (double x))
+     :cljs (.toExponential (js/Number x) 2)))
 
 (defn report
   "Render the public-genetics coverage-report markdown (1:1 with coverage_report.report)."
@@ -136,7 +138,7 @@
      "CLI entry: render coverage-report.md from a seed EDN graph."
      [& argv]
      (let [argv (vec argv)
-           here (-> *file* clojure.java.io/file .getParentFile .getParentFile)
+           here (clojure.java.io/file (or (System/getenv "RASEN_ACTOR_DIR") "."))
            seed (if (and (seq argv) (not (str/starts-with? (first argv) "--")))
                   (clojure.java.io/file (first argv))
                   (clojure.java.io/file here "data" "seed-genome-graph.kotoba.edn"))

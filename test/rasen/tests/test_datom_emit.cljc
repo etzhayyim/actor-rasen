@@ -11,7 +11,7 @@
             [rasen.methods.analyze :as analyze]
             [rasen.methods.datom-emit :as datom-emit]))
 
-(def actor-dir (-> *file* io/file .getParentFile .getParentFile))
+(def actor-dir (io/file "."))
 (def seed (str (io/file actor-dir "data" "seed-genome-graph.kotoba.edn")))
 
 (deftest test-datom-emit-ground-and-transient

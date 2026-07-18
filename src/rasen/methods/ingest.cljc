@@ -334,3 +334,53 @@
 ;; NOTE: the live network/ipfs pipeline (`_get_json` / `ingest` / `main`) is host I/O and is
 ;; intentionally NOT ported (the .cljc surface is the deterministic, network-free port the
 ;; tests exercise — normalisation + EDN serialisation + content-address via rasen.methods.cid).
+
+#?(:clj
+   (defn -main
+     "CLI entry: mirrors ingest.main — [--offline] [--out DIR] [--sources EDN] [--no-pin].
+     --offline re-addresses an existing out/ingested-genome-graph.kotoba.edn (load → analyze →
+     datoms → CIDv1 + provenance + optional ipfs pin). The LIVE gene-fetch leg (MyGene.info /
+     MyVariant.info) is G7-gated network and not ported (refused). ADR-2606261200."
+     [& argv]
+     (let [argv     (vec argv)
+           here     (let [f  (when (and *file* (not (str/blank? *file*))) (io/file *file*))
+                          pp (some-> f .getAbsoluteFile .getParentFile .getParentFile)]
+                      (if (and pp (.isDirectory (io/file pp "data"))) pp (io/file ".")))
+           outdir   (if (some #{"--out"} argv) (io/file (nth argv (inc (.indexOf argv "--out")))) (io/file here "out"))
+           no-pin   (boolean (some #{"--no-pin"} argv))
+           graph-f  (io/file outdir "ingested-genome-graph.kotoba.edn")]
+       (cond
+         (not (some #{"--offline"} argv))
+         (binding [*out* *err*]
+           (println (str "REFUSED: live gene ingest (MyGene.info / MyVariant.info) is G7-gated "
+                         "network + not ported. Run with --offline to re-address an existing graph."))
+           (System/exit 1))
+         (not (.exists graph-f))
+         (binding [*out* *err*]
+           (println "ingest --offline: no existing graph to re-address")
+           (System/exit 1))
+         :else
+         (let [analyze* (requiring-resolve 'rasen.methods.analyze/analyze)
+               emit*    (requiring-resolve 'rasen.methods.datom-emit/emit)
+               cidv1*   (requiring-resolve 'rasen.methods.cid/cidv1-raw)
+               [nodes edges] (load (.getPath graph-f))
+               res      (analyze* nodes edges)
+               datoms   (emit* nodes edges res 1)
+               datom-f  (io/file outdir "ingested-genome-datoms.kotoba.edn")
+               _        (spit datom-f datoms)
+               g-bytes  (java.nio.file.Files/readAllBytes (.toPath graph-f))
+               cid      (cidv1* g-bytes)
+               d-cid    (cidv1* (.getBytes datoms "UTF-8"))
+               prov     {:offline true :artifact {:graph_edn (.getName graph-f) :bytes (alength g-bytes)
+                                                  :cid cid :datoms_cid d-cid}
+                         :counts {:nodes (count nodes) :edges (count edges)}}]
+           (.mkdirs outdir)
+           (spit (io/file outdir "ingested.cid") (str cid "\n"))
+           (when-not no-pin
+             (when (try (zero? (:exit (babashka.process/shell {:out :string :err :string :continue true}
+                                        "ipfs" "add" "-Q" "--cid-version=1" "--raw-leaves" (.getPath graph-f))))
+                        (catch Exception _ false))
+               (assoc-in prov [:pin :ok] true)))
+           (spit (io/file outdir "ingest-provenance.edn") (str (pr-str prov) "\n"))
+           (println (str "rasen ingest (offline): re-addressed graph (" (count nodes) " nodes · "
+                         (count edges) " edges) → cid " cid)))))))

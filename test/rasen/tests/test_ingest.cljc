@@ -14,13 +14,25 @@
             [rasen.methods.cid :as cid]
             [rasen.methods.ingest :as ingest]))
 
-(def actor-dir (-> *file* io/file .getParentFile .getParentFile))
-(def fix (io/file actor-dir "tests" "fixtures" "myvariant_rs334.json"))
-(def go-fix (io/file actor-dir "tests" "fixtures" "mygene_brca1_go.json"))
-(def react-fix (io/file actor-dir "tests" "fixtures" "reactome_brca1.json"))
-(def sources (ingest/read-edn (slurp (io/file actor-dir "data" "ingest-sources.edn"))))
-(def pop-map (get sources ":ingest/population-map"))
-(def clinsig-map (get sources ":ingest/clinsig-map"))
+(def actor-dir (io/file "."))
+(def fix (io/file actor-dir "wire" "fixtures" "myvariant_rs334.json"))
+(def go-fix (io/file actor-dir "wire" "fixtures" "mygene_brca1_go.json"))
+(def react-fix (io/file actor-dir "wire" "fixtures" "reactome_brca1.json"))
+
+;; data/ingest-sources.edn is now Datomic/Datascript tx-data (manifest/edn-datomize.cljs
+;; wrap-map! shape: `[{:db/id -1 :ingest/... ...}]`, non-scalar values pr-str'd to a "blob"
+;; string attr) rather than a bare map — unwrap the single entity and reparse any blob attrs
+;; this test needs back into maps via the same reader (round-trips: :ingest/population-map /
+;; :ingest/clinsig-map were plain string→keyword maps pre-transform and still parse to the
+;; same shape post-unblob).
+(defn- unblob [v]
+  (if (string? v)
+    (let [parsed (ingest/read-edn v)]
+      (if (coll? parsed) parsed v))
+    v))
+(def sources (first (ingest/read-edn (slurp (io/file actor-dir "data" "ingest-sources.edn")))))
+(def pop-map (unblob (get sources ":ingest/population-map")))
+(def clinsig-map (unblob (get sources ":ingest/clinsig-map")))
 
 (defn- read-json [f] (json/parse-string (slurp f)))
 

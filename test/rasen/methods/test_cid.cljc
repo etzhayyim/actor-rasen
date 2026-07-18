@@ -1,6 +1,6 @@
 #!/usr/bin/env bb
 ;; rasen 螺旋 — CIDv1 content-address parity test (against `ipfs add`).
-;; Run:  bb --classpath 20-actors 20-actors/rasen/methods/test_cid.cljc
+;; Run: bb test
 (ns rasen.methods.test-cid
   "Pins rasen.methods.cid byte-for-byte against the gold-standard `ipfs add --cid-version=1
   --raw-leaves` (CIDv1 / raw codec 0x55 / sha2-256 / multibase base32-'b'). The module's whole

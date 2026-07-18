@@ -1,0 +1,4 @@
+{:schema/version 1
+ :dependencies [{:id "io-multiformats"
+                 :url "https://github.com/kotoba-lang/io-multiformats.git"
+                 :revision "af315519c0ae181da9e8dc532abc2d22c782efd4"}]}

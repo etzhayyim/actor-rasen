@@ -1,0 +1,85 @@
+;; genome-ontology — the public-genetics (公開遺伝) vocabulary for rasen 螺旋
+;; ADR-2606101000 · molecular-scale sibling of biosphere-ontology (ADR-2606073000, inochi 命)
+;; and peoples-ontology (ADR-2606073800, tsugite 継ぎ手). Where inochi mirrors the living
+;; world at the species/ecosystem scale, rasen mirrors it at the GENE / VARIANT scale —
+;; the shared, PUBLIC reference text of life across humans, animals, plants and microbes.
+;;
+;; PURPOSE: weave PUBLIC reference genetics — genes, sequence variants, the phenotypes /
+;; conditions they associate with, the pathways they participate in, and POPULATION-AGGREGATE
+;; allele frequencies — into the kotoba Datom log. The lens is integrated CLINICAL / FUNCTIONAL
+;; evidence burden over a gene, routed to CARE & RESEARCH (release), never to discrimination.
+;;
+;; CONSTITUTIONAL INVERSION (G1, read first): rasen is a CARE / RESEARCH map of PUBLIC
+;; reference genetics, NEVER an individual-genotype registry or a discrimination / eugenic /
+;; insurance-underwriting / forensic-identification tool. It carries NO individual genotypes,
+;; NO identifiable personal sequence, NO sample-level or family-level data. The unit is ALWAYS
+;; a gene / variant / population-aggregate. Allele frequencies are POPULATION-LEVEL ONLY
+;; (gnomAD super-population scale); they can never reconstruct a person. Chromosomal location
+;; is COARSE (cytoband) — never a precise re-identifiable coordinate. It inverts the
+;; surveillance/discrimination apparatus: it routes genetic knowledge to care, research and
+;; equity, never to ranking the worth of a person or a people.
+;;
+;; EDGE-PRIMARY (N1): functional/clinical burden lives ONLY on edges (:en/grasping-load,
+;; weighted by DISCLOSED :en/clinsig). A gene's care-priority = the INTEGRAL of its incident
+;; variant-association + gene-linkage 縁, computed on READ — never a stored per-gene score.
+;; There is no :genome/score-of-gene.
+;;
+;; NON-ADJUDICATING (N3): clinical-significance categories are DISCLOSED curated facts
+;; (ClinVar / OMIM / GWAS-Catalog style), never rasen verdicts. rasen datafies the
+;; variant–gene–phenotype structure; it never diagnoses, never rates a person, never asserts
+;; the worth of any genotype.
+
+{:schema/id "genome-ontology"
+ :schema/version "0.1.0"
+ :schema/adr "2606101000"
+
+ ;; ── nodes ──────────────────────────────────────────────────────────────────
+ :node/attrs
+ [{:attr :genome/id          :doc "stable id, e.g. gene.brca1 / var.rs334 / ph.sickle-cell / pop.afr / pw.dna-repair"}
+  {:attr :genome/kind        :doc ":gene | :variant | :phenotype | :population | :pathway"}
+  {:attr :genome/label       :doc "common/display label"}
+  {:attr :genome/sourcing    :doc ":authoritative (ClinVar/gnomAD/Ensembl/OMIM/GWAS-Catalog primary) | :representative (bounded public seed)"}
+  {:attr :genome/links       :doc "optional cross-actor id — e.g. an inochi species (bio.species.*) or mitsuho crop; aggregate-first"}
+
+  ;; gene facet
+  {:attr :gene/symbol        :doc "HGNC symbol, e.g. \"BRCA1\""}
+  {:attr :gene/cytoband      :doc "COARSE chromosomal band only, e.g. \"17q21.31\" — NEVER a precise/re-identifiable coordinate (G1)"}
+  {:attr :gene/ensembl       :doc "Ensembl stable gene id, e.g. \"ENSG00000012048\" (public reference)"}
+  {:attr :gene/taxon         :doc ":homo-sapiens | :loxodonta | :oryza-sativa | :bacteria | ... — life is broader than humans"}
+
+  ;; variant facet (DISCLOSED public reference variants only — no individual genotypes)
+  {:attr :variant/rsid       :doc "dbSNP rsID, e.g. \"rs334\" (public reference)"}
+  {:attr :variant/category   :doc ":snv | :indel | :cnv | :repeat-expansion | :structural"}
+
+  ;; phenotype / condition facet
+  {:attr :phenotype/code     :doc "MONDO/OMIM/HPO accession (public), e.g. \"MONDO:0011382\""}
+  {:attr :phenotype/inheritance :doc ":AD | :AR | :XL | :mitochondrial | :complex | :somatic | :trait"}
+
+  ;; population facet (AGGREGATE super-populations only — gnomAD scale; never a cohort)
+  {:attr :population/code    :doc ":global | :AFR | :AMR | :EAS | :EUR | :SAS — super-population aggregate ONLY (G1)"}
+
+  ;; pathway facet
+  {:attr :pathway/source     :doc ":GO | :reactome | :kegg"}
+  {:attr :pathway/acc        :doc "accession, e.g. \"GO:0006281\""}]
+
+ ;; ── edges (縁) ───────────────────────────────────────────────────────────────
+ :edge/attrs
+ [{:attr :en/from            :doc "source genome-node id"}
+  {:attr :en/to              :doc "target genome-node id"}
+  {:attr :en/kind            :doc ":located-in (variant→gene) | :associated-with (variant→phenotype) | :linked-to (gene→phenotype) | :participates-in (gene→pathway) | :allele-frequency (population→variant, AGGREGATE) | :interacts-with (gene→gene)"}
+  {:attr :en/grasping-load   :doc "0..1 — the functional/clinical evidence burden this 縁 carries (association/effect strength; or AGGREGATE allele frequency on :allele-frequency). karma lives HERE (N1)."}
+  {:attr :en/clinsig         :doc "DISCLOSED clinical significance of an association/linkage edge — :pathogenic :likely-pathogenic :risk-factor :drug-response :uncertain :likely-benign :benign :protective (ClinVar-style; never a rasen verdict, N3)"}
+  {:attr :en/sourcing        :doc ":authoritative | :representative"}]
+
+ ;; ── derived (transient, computed on READ — NEVER stored; N1/G2) ──────────────
+ :derived/attrs
+ [{:attr :bond/care-priority  :doc "gene integral of incident variant-association + gene-linkage loads × disclosed clinsig — the care/research surface"}
+  {:attr :bond/locus-burden   :doc "variant/locus integral of outbound association load × clinsig — the burden-bearing locus"}
+  {:attr :bond/pleiotropy     :doc "node integral of incident association/linkage/pathway 縁 — cascade breadth (how many phenotypes/pathways it touches)"}
+  {:attr :bond/is-transient   :doc "const true — derived readout, not a stored datom"}]
+
+ ;; ── clinical-significance → representative evidence weight (DISCLOSED scale, not a verdict) ──
+ ;; mirrors biosphere-ontology :iucn/weight; sourced from ClinVar-style category semantics.
+ :clinsig/weight
+ {:pathogenic 1.0 :likely-pathogenic 0.8 :risk-factor 0.5 :drug-response 0.4
+  :uncertain 0.3 :vus 0.3 :likely-benign 0.1 :benign 0.05 :protective 0.1}}
