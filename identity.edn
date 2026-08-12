@@ -1,2 +1,2 @@
-{:repository/id "com-etzhayyim-rasen" :repository/type :actor :actor/id "rasen"
+{:repository/id "actor-rasen" :repository/type :actor :actor/id "rasen"
  :actor/glyph "螺旋" :canonical-format :edn :wire-formats #{:json :json-ld :bpmn}}

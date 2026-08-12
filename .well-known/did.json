@@ -1,7 +1,7 @@
 {
   "@context" : [ "https://www.w3.org/ns/did/v1", "https://w3id.org/security/suites/ed25519-2020/v1" ],
   "id" : "did:web:etzhayyim.com:actor:rasen",
-  "alsoKnownAs" : [ "at://rasen.etzhayyim.com", "https://github.com/etzhayyim/com-etzhayyim-rasen", "rad:bafkreic3wlibpsbmtjoppsvfj4r53h734pugegd2762i4fgtfq56d7wkny", "did:web:etzhayyim.github.io:com-etzhayyim-rasen" ],
+  "alsoKnownAs" : [ "at://rasen.etzhayyim.com", "https://github.com/etzhayyim/actor-rasen", "rad:bafkreic3wlibpsbmtjoppsvfj4r53h734pugegd2762i4fgtfq56d7wkny", "did:web:etzhayyim.github.io:com-etzhayyim-rasen" ],
   "service" : [ {
     "id" : "did:web:etzhayyim.com:actor:rasen#atproto_pds",
     "type" : "AtprotoPersonalDataServer",

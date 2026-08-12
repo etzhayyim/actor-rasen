@@ -1,8 +1,16 @@
 # rasen 螺旋
 
 Public and aggregate genetics graph actor. This repository is the standalone
-`com-etzhayyim-rasen` west project; EDN is canonical and JSON is permitted only
+`actor-rasen` west project; EDN is canonical and JSON is permitted only
 as external wire fixtures under `wire/`.
+
+Canonical repository: `etzhayyim/actor-rasen`.
+
+Within the Tamaki artificial organism, rasen is the public aggregate-genetics
+observation organ. It may integrate reference evidence and population-level
+frequencies, but it cannot store individual genotypes, diagnose or rate a
+person, or support insurance, employment, forensic, or eugenic decisions.
+Network ingest and publication remain Council- and operator-gated.
 
 ```bash
 bb test
