@@ -1,4 +1,4 @@
-# com-etzhayyim-rasen repository rules
+# actor-rasen repository rules
 
 - This is an independent flat-path west repository.
 - EDN is canonical for identity, manifests, dependencies, schema, state, and

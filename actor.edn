@@ -1,4 +1,4 @@
-{:did        "did:web:etzhayyim.github.io:com-etzhayyim-rasen"
+{:did        "did:web:etzhayyim.com:actor:rasen"
  :handle     "rasen.etzhayyim.com"
  :ipns-key   "rasen-actor"
  :graph-type "com.etzhayyim.rasen.graph"
