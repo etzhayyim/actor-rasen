@@ -12,6 +12,6 @@
 (def nss '[rasen.murakumo-test rasen.methods.test-cid rasen.methods.test-gene-node
            rasen.tests.test-analyze rasen.tests.test-coverage rasen.tests.test-datom-emit
            rasen.tests.test-ingest rasen.tests.test-wasm rasen.tests.test-kotoba
-           rasen.tests.test-publish rasen.tests.test-clinvar rasen.tests.test-ledger-shards])
+           rasen.tests.test-publish rasen.tests.test-clinvar rasen.tests.test-ledger-shards rasen.tests.test-clinvar-run])
 (doseq [n nss] (require n))
 (let [r (apply t/run-tests nss)] (System/exit (if (zero? (+ (:fail r) (:error r))) 0 1)))
