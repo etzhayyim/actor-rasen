@@ -224,7 +224,15 @@
                (let [lines (line-seq r)
                      idx (cv/header-index (first lines))
                      head (ls/head-cid root)
-                     st (atom {:rows-read 0 :rows-kept 0 :rows-skipped 0
+                     ;; kept/skipped are seeded from the checkpoint on resume; rows-read is
+                     ;; not, because the reader walks the file from the top every run and would
+                     ;; otherwise double-count the prefix it skips. Before this, all three sat
+                     ;; in one map on different bases — rows-read cumulative, the other two
+                     ;; per-run — so a reader of the checkpoint saw a kept count that looked
+                     ;; like a total and was not one.
+                     st (atom {:rows-read 0
+                               :rows-kept (if (pos? skip-rows) (or (get cp ":rows/kept") 0) 0)
+                               :rows-skipped (if (pos? skip-rows) (or (get cp ":rows/skipped") 0) 0)
                                :datoms 0 :txs 0 :prev (or head "") :seen #{}
                                :pending [] :pending-n 0 :limited? false})
                      flush!
