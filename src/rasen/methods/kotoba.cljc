@@ -152,7 +152,19 @@
      (defn head-cid [log-path]
        (let [txs (read-log log-path)] (if (seq txs) (get (last txs) ":tx/cid") "")))
 
-     (defn verify-chain [log-path]
+     (defn verify-chain
+       "Walk the log and report whether it is one unbroken prev-cid chain.
+
+       An ABSENT log is refused (:reason :no-log), not reported ok. `read-log` returns [] for a
+       missing file because `autorun` legitimately starts a fresh chain from genesis on a
+       machine that has no ledger yet — but folding that [] into verification made
+       'there is no ledger here' return the same {:ok true} as 'I read the whole ledger and
+       every link holds'. Measured 2026-09-06: verifying a path that did not exist reported
+       {:ok true :length 0}."
+       [log-path]
+       (when-not (.exists (io/file log-path))
+         (throw (ex-info "verify-chain: no ledger at this path — cannot report a verified chain"
+                         {:reason :no-log :path (str log-path)})))
        (let [txs (read-log log-path) n (count txs)]
          (loop [i 0 prev "" ts txs]
            (if (empty? ts) {:ok true :length n :broken-at -1}

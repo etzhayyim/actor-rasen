@@ -5,7 +5,7 @@
   (:require [rasen.methods.kotoba :as k]
             [rasen.methods.autorun :as auto]
             [clojure.string :as str]
-            [clojure.test :refer [deftest is run-tests]]
+            [clojure.test :refer [deftest is run-tests testing]]
             [clojure.java.io :as io]))
 
 (defn- tmp [] (str (System/getProperty "java.io.tmpdir") "/rasen-ledger-test-" (gensym) ".edn"))
@@ -108,3 +108,11 @@
    (when (= *file* (System/getProperty "babashka.file"))
      (let [{:keys [fail error]} (run-tests 'rasen.tests.test-kotoba)]
        (System/exit (if (zero? (+ fail error)) 0 1)))))
+
+(deftest verify-chain-refuses-an-absent-ledger
+  (testing "an absent ledger must not return the same {:ok true} as a fully-walked one"
+    (let [missing (str (io/file (System/getProperty "java.io.tmpdir")
+                                (str "rasen-no-ledger-" (System/nanoTime) ".edn")))
+          e (try (k/verify-chain missing) nil (catch Exception ex ex))]
+      (is (some? e) "verifying a ledger that is not there is UNVERIFIED, not ok")
+      (is (= :no-log (:reason (ex-data e))) "refused for the stated reason"))))
