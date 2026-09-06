@@ -127,37 +127,66 @@
          (str "sha256:" (apply str (map #(format "%02x" (bit-and (int %) 0xff)) (.digest md))))))
 
      (defn open-gzip-lines
-       "A reader over a gzipped LOCAL file. A URL is refused: `run!` must be able to say how
-       many bytes it consumed, and the honest way to know that is to have the file."
+       "[reader source-bytes] over a gzipped source. `src` may be a local path or an https URL.
+
+       A URL streams — it is NOT downloaded first. That is not a convenience: the host this
+       runs on has repeatedly had under a gigabyte free, and requiring 442 MB of scratch before
+       a single row is normalised makes the run depend on space it does not need.
+
+       `source-bytes` is the file length for a local path and nil for a URL, because a stream
+       cannot report a size it has not finished reading. Completeness for a URL rests on
+       something stronger than a byte count instead: gzip's trailer carries the CRC32 and the
+       uncompressed length of the member, and GZIPInputStream validates both at end of stream.
+       A cut connection raises EOFException; a corrupted body raises ZipException. Neither can
+       be mistaken for a short release."
        [src]
-       (when (re-find #"^https?://" (str src))
-         (throw (ex-info "open-gzip-lines: fetch! the release to a local file first"
-                         {:source (str src)})))
-       (let [f (io/file (str src))]
-         (when-not (.exists f)
-           (throw (ex-info "open-gzip-lines: no such source" {:source (str src)})))
-         [(io/reader (java.util.zip.GZIPInputStream. (io/input-stream f) 65536) :encoding "UTF-8")
-          (.length f)]))
+       (if (re-find #"^https?://" (str src))
+         [(io/reader (java.util.zip.GZIPInputStream. (io/input-stream (str src)) 65536)
+                     :encoding "UTF-8")
+          nil]
+         (let [f (io/file (str src))]
+           (when-not (.exists f)
+             (throw (ex-info "open-gzip-lines: no such source" {:source (str src)})))
+           [(io/reader (java.util.zip.GZIPInputStream. (io/input-stream f) 65536)
+                       :encoding "UTF-8")
+            (.length f)])))
 
      (defn run!
        "Stream ClinVar into the sharded ledger under `root`.
 
        opts:
-         :source        LOCAL path of variant_summary.txt.gz (use `fetch!` first)
+         :source        local path OR https URL of variant_summary.txt.gz. A URL streams;
+                        see `open-gzip-lines` for what asserts completeness in each case.
          :fingerprint   opaque string identifying the release (Last-Modified + size).
                         Required for resume; without it a previous checkpoint is refused.
-         :expect-bytes  compressed size the release declared. When given, a source file of a
-                        different size returns :truncated.
+         :expect-bytes  compressed size the release declared. LOCAL sources only — passing
+                        it with a URL is REFUSED, because a stream's size is not knowable
+                        before the read and quietly ignoring it would leave the caller
+                        believing something was compared.
          :assembly      default \"GRCh38\"
          :batch         {:max-datoms n}
          :limit         stop after n data rows (bounded runs and tests)
          :resume?       continue from the checkpoint when it matches :fingerprint
+         :after-append  (fn [root] ...) run after each transaction is appended. This is where a
+                        long run frees disk: `rasen.methods.shard-archive/archive!` offloads
+                        shards that have sealed. It is called with the ledger root and its
+                        return value is ignored — an archive failure must not lose the rows
+                        already normalised, and `archive!` never deletes a shard it could not
+                        read back, so a failing offload degrades to 'the disk fills' rather
+                        than to 'the ledger loses bytes'.
 
        Returns {:status :complete|:truncated|:limited, …counts}. :complete is the only status
        that asserts the whole release was seen."
-       [root {:keys [source fingerprint expect-bytes assembly batch limit resume?]
+       [root {:keys [source fingerprint expect-bytes assembly batch limit resume? after-append]
               :or {assembly "GRCh38" batch default-batch}}]
        (when-not source (throw (ex-info "run!: no :source" {})))
+       ;; A byte count cannot be checked against a stream. Ignoring the caller's :expect-bytes
+       ;; here would leave them believing a size was verified when nothing compared it — the
+       ;; same shape as a check that silently does nothing. Refuse the incoherent request.
+       (when (and expect-bytes (re-find #"^https?://" (str source)))
+         (throw (ex-info (str "run!: :expect-bytes cannot be checked against a streamed URL — "
+                              "the gzip trailer is what asserts completeness here")
+                         {:reason :expect-bytes-unmeasurable :source (str source)})))
        (let [cp (read-checkpoint root)
              skip-rows (if (and resume? (checkpoint-usable? cp fingerprint))
                          (get cp ":rows/read") 0)]
@@ -180,6 +209,7 @@
                          (when (and (seq pending) (or force? (batch-full? pending-n batch)))
                            (let [tx (k/make-tx (vec pending) (str "clinvar-" txs) "stream" prev)]
                              (ls/append-txs! root [tx])
+                             (when after-append (after-append root))
                              (swap! st assoc :prev (get tx ":tx/cid") :pending [] :pending-n 0
                                     :txs (inc txs) :datoms (+ datoms pending-n))))))]
                  (doseq [line (rest lines)
@@ -207,7 +237,8 @@
                        bytes-read src-bytes
                        status (cond
                                 limited? :limited
-                                (and expect-bytes (not= expect-bytes bytes-read)) :truncated
+                                (and expect-bytes bytes-read (not= expect-bytes bytes-read))
+                                :truncated
                                 :else :complete)
                        result (assoc (progress-report {:rows-read rows-read :rows-kept rows-kept
                                                        :rows-skipped rows-skipped :datoms datoms
