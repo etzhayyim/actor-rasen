@@ -174,3 +174,11 @@
 
 (deftest no-source-is-refused
   (is (thrown? clojure.lang.ExceptionInfo (run/run! (tmp-dir) {}))))
+
+(deftest expect-bytes-against-a-url-is-refused-not-ignored
+  (testing "a stream's size is not knowable before the read; ignoring the caller's declared
+            size would look exactly like having checked it"
+    (let [e (try (run/run! (tmp-dir) {:source "https://example.invalid/x.gz" :expect-bytes 42})
+                 nil (catch clojure.lang.ExceptionInfo ex ex))]
+      (is (some? e))
+      (is (= :expect-bytes-unmeasurable (:reason (ex-data e)))))))
