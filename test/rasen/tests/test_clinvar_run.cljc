@@ -182,3 +182,22 @@
                  nil (catch clojure.lang.ExceptionInfo ex ex))]
       (is (some? e))
       (is (= :expect-bytes-unmeasurable (:reason (ex-data e)))))))
+
+(deftest progress-is-checkpointed-during-the-run-not-only-at-its-end
+  (testing "a checkpoint written only on completion is one that exists only for runs that
+            did not need it"
+    (let [d (tmp-dir) gz (io/file d "cv.txt.gz") root (io/file d "ledger")
+          seen (atom [])]
+      (try
+        (write-gz! gz (corpus-text 60))
+        ;; :after-append fires once per appended transaction; read the checkpoint from disk
+        ;; there, so what is asserted is what a crashed run would have left behind.
+        (run/run! root {:source (str gz) :fingerprint "rel-1" :batch {:max-datoms 200}
+                        :after-append (fn [rt]
+                                        (swap! seen conj (get (run/read-checkpoint rt)
+                                                              ":rows/read")))})
+        (is (< 1 (count @seen)) "more than one transaction was appended")
+        (is (every? some? @seen) "a checkpoint existed at every append, not just at the end")
+        (is (apply <= @seen) "and it only ever moved forward")
+        (is (pos? (first @seen)) "the first checkpoint already records real progress")
+        (finally (rm-r d))))))

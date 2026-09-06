@@ -209,6 +209,23 @@
                          (when (and (seq pending) (or force? (batch-full? pending-n batch)))
                            (let [tx (k/make-tx (vec pending) (str "clinvar-" txs) "stream" prev)]
                              (ls/append-txs! root [tx])
+                             ;; Checkpoint HERE, not only at the end. A run over the full
+                             ;; release takes hours; a checkpoint written once at completion
+                             ;; is a checkpoint that only exists for runs that did not need
+                             ;; one. Nothing is lost when a long run dies — the ledger is
+                             ;; append-only and a repeated :db/add of an identical [e a v] is
+                             ;; a no-op on read — but the resumed run would re-normalise every
+                             ;; row since the last completed run, which for this corpus is
+                             ;; hours of work redone.
+                             (write-checkpoint! root
+                                                {":source/fingerprint" (or fingerprint "")
+                                                 ":rows/read" (:rows-read @st)
+                                                 ":rows/kept" (:rows-kept @st)
+                                                 ":rows/skipped" (:rows-skipped @st)
+                                                 ":run/status" :in-progress})
+                             ;; Archive AFTER the checkpoint: the checkpoint records what is
+                             ;; in the ledger, and an offload failure must not make the run
+                             ;; look like it normalised less than it did.
                              (when after-append (after-append root))
                              (swap! st assoc :prev (get tx ":tx/cid") :pending [] :pending-n 0
                                     :txs (inc txs) :datoms (+ datoms pending-n))))))]
