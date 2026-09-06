@@ -201,3 +201,36 @@
         (is (apply <= @seen) "and it only ever moved forward")
         (is (pos? (first @seen)) "the first checkpoint already records real progress")
         (finally (rm-r d))))))
+
+(deftest a-cut-stream-keeps-the-progress-it-had
+  (testing "the rows already appended are in the ledger; a failure that reset the checkpoint
+            would make the resumed run go find them again — which is the whole cost this
+            checkpoint exists to avoid"
+    (let [d (tmp-dir) gz (io/file d "cv.txt.gz") cut (io/file d "cut.txt.gz")
+          root (io/file d "ledger")]
+      (try
+        (let [n (write-gz! gz (corpus-text 400))
+              bytes (java.util.Arrays/copyOf (java.nio.file.Files/readAllBytes (.toPath gz))
+                                             (int (* 0.7 n)))]
+          (io/copy bytes cut)
+          (try (run/run! root {:source (str cut) :fingerprint "rel-1"
+                               :batch {:max-datoms 200}})
+               (catch clojure.lang.ExceptionInfo _ nil))
+          (let [cp (run/read-checkpoint root)]
+            (is (some? cp) "a cut run must leave a checkpoint")
+            (is (pos? (get cp ":rows/read")) "carrying the progress it actually made")
+            (is (pos? (get cp ":rows/kept")))
+            ;; read back as a ':…' STRING, not a keyword — the minimal reader in
+            ;; kotoba.cljc keeps those as strings, the same convention the graph nodes use
+            (is (contains? #{":truncated" ":corrupt" ":interrupted"} (get cp ":run/status"))
+                "and saying which way the stream died")))
+        (finally (rm-r d))))))
+
+(deftest stream-failures-are-classified-and-nothing-else-is
+  (is (= :truncated (run/stream-failure (java.io.EOFException. "cut"))))
+  (is (= :corrupt (run/stream-failure (java.util.zip.ZipException. "bad"))))
+  (is (= :interrupted (run/stream-failure (java.net.SocketException. "Connection reset")))
+      "the failure a multi-hour stream actually dies of")
+  (is (= :interrupted (run/stream-failure (java.net.SocketTimeoutException. "timeout"))))
+  (is (nil? (run/stream-failure (IllegalArgumentException. "not a stream problem")))
+      "a failure this does not recognise must not be relabelled as a stream problem"))

@@ -54,6 +54,30 @@
                 [{} seen] (:nodes graph))]
     [(assoc graph :nodes nodes') seen']))
 
+(defn stream-failure
+  "Classify a stream failure so the three ways a long read dies stay distinguishable:
+
+    :truncated   the source ended mid-gzip-member (EOFException) — the release we were given
+                 is short, or the transfer stopped and the server closed cleanly
+    :corrupt     the bytes decompressed to nonsense (ZipException)
+    :interrupted the connection was reset or timed out mid-read (any other IOException)
+
+  The third is not an edge case. A full release takes hours over one HTTPS connection, and
+  the connection WILL be cut — measured 2026-09-06: a live run died with
+  java.net.SocketException 'Connection reset' after 230 transactions and 4,588,771 datoms.
+  Before this it escaped both catches, so the one failure most likely to happen was the one
+  that fell through as an unclassified stack trace with no checkpoint written.
+
+  Returns nil for anything that is not an IOException — a failure this does not recognise must
+  not be relabelled as a stream problem."
+  [e]
+  #?(:clj (cond
+            (instance? java.io.EOFException e) :truncated
+            (instance? java.util.zip.ZipException e) :corrupt
+            (instance? java.io.IOException e) :interrupted
+            :else nil)
+     :cljs nil))
+
 (defn progress-report
   "The counts a run must be able to show. Kept separate from the run so a caller can assert on
   it without performing I/O."
@@ -268,13 +292,22 @@
                    (when (and expect-bytes (not= expect-bytes bytes-read))
                      (assoc result :expected-bytes expect-bytes))
                    result)))
-             (catch java.io.EOFException e
-               ;; gzip refused its own trailer: the source was cut mid-member.
-               (write-checkpoint! root {":source/fingerprint" (or fingerprint "")
-                                        ":rows/read" 0 ":rows/kept" 0 ":rows/skipped" 0
-                                        ":run/status" :truncated})
-               (throw (ex-info "run!: source stream ended mid-gzip — refusing to report a corpus"
-                               {:reason :truncated} e)))
-             (catch java.util.zip.ZipException e
-               (throw (ex-info "run!: gzip stream is corrupt — refusing to report a corpus"
-                               {:reason :corrupt} e)))))))))
+             (catch java.io.IOException e
+               ;; One clause, three reasons. Writing the checkpoint here is the point: the
+               ;; rows already appended are in the ledger, and a resumed run must not have to
+               ;; find them again.
+               (let [reason (stream-failure e)
+                     ;; Update the STATUS, never the counts. The periodic checkpoint already
+                     ;; holds how far the run got, and those rows are in the ledger; writing
+                     ;; zeros here would throw away exactly the progress this catch exists to
+                     ;; preserve. An absent checkpoint means no transaction was ever appended,
+                     ;; and only then are zeros the truth.
+                     cp (or (read-checkpoint root)
+                            {":rows/read" 0 ":rows/kept" 0 ":rows/skipped" 0})]
+                 (write-checkpoint! root (assoc cp ":source/fingerprint" (or fingerprint "")
+                                                ":run/status" reason))
+                 (throw (ex-info (case reason
+                                   :truncated "run!: source stream ended mid-gzip — refusing to report a corpus"
+                                   :corrupt "run!: gzip stream is corrupt — refusing to report a corpus"
+                                   "run!: the source connection was interrupted — refusing to report a corpus")
+                                 {:reason reason} e))))))))))
