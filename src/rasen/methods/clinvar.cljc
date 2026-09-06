@@ -1,5 +1,5 @@
 (ns rasen.methods.clinvar
-  "clinvar.cljc — rasen 螺旋 FULL-CORPUS ClinVar normalisation surface (ADR-2609061800).
+  "clinvar.cljc — rasen 螺旋 FULL-CORPUS ClinVar normalisation surface (ADR-2609062000).
 
   Where `rasen.methods.ingest` pulls a BOUNDED, REPRESENTATIVE slice through the
   MyGene/MyVariant JSON APIs (one HTTP round trip per gene), this namespace normalises the
