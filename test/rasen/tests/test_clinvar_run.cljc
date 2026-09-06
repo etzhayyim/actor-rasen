@@ -168,7 +168,10 @@
         (is (= :limited (:status first-pass)))
         (is (= :complete (:status second-pass)))
         (is (= 120 (:rows/read second-pass)) "the reader still walks the file")
-        (is (< (:rows/kept second-pass) 60) "but only the unread tail was normalised")
+        ;; The counts are cumulative, so "skips what was already read" is not a smaller
+        ;; number — it is the ABSENCE of a larger one. 60 GRCh38 rows exist; if the resumed
+        ;; run had re-normalised the prefix the total would be 70.
+        (is (= 60 (:rows/kept second-pass)) "each row was normalised exactly once")
         (is (:ok (ls/verify! root)) "and the two passes form one chain"))
       (finally (rm-r d)))))
 
@@ -234,3 +237,27 @@
   (is (= :interrupted (run/stream-failure (java.net.SocketTimeoutException. "timeout"))))
   (is (nil? (run/stream-failure (IllegalArgumentException. "not a stream problem")))
       "a failure this does not recognise must not be relabelled as a stream problem"))
+
+(deftest checkpoint-counts-share-one-basis
+  (testing "rows/read is cumulative because the reader walks the file from the top; if
+            kept and skipped stayed per-run, the same map would carry two bases and its
+            kept count would read as a total it is not"
+    (let [d (tmp-dir) gz (io/file d "cv.txt.gz") root (io/file d "ledger")]
+      (try
+        (write-gz! gz (corpus-text 60))
+        (let [first-pass (run/run! root {:source (str gz) :fingerprint "rel-1" :limit 10
+                                         :batch {:max-datoms 200}})
+              cp1 (run/read-checkpoint root)
+              second-pass (run/run! root {:source (str gz) :fingerprint "rel-1" :resume? true
+                                          :batch {:max-datoms 200}})
+              cp2 (run/read-checkpoint root)]
+          (is (= :limited (:status first-pass)))
+          (is (= :complete (:status second-pass)))
+          (is (= 120 (get cp2 ":rows/read")) "every line of the release was read")
+          (is (= 60 (get cp2 ":rows/kept")) "and every GRCh38 row was kept, across both runs")
+          (is (>= (get cp2 ":rows/kept") (get cp1 ":rows/kept"))
+              "a resumed run never reports fewer kept rows than the run before it")
+          (is (= (get cp2 ":rows/read")
+                 (+ (get cp2 ":rows/kept") (get cp2 ":rows/skipped")))
+              "read = kept + skipped: one basis, and nothing unaccounted for"))
+        (finally (rm-r d))))))
