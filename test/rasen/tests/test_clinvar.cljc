@@ -1,5 +1,5 @@
 (ns rasen.tests.test-clinvar
-  "Tests for the FULL-CORPUS ClinVar normaliser (ADR-2609061800).
+  "Tests for the FULL-CORPUS ClinVar normaliser (ADR-2609062000).
 
   The G1 controls here assert the REASON, not merely that something was refused: a negative
   test that only checks 'it threw' counts an unrelated failure as a successful discrimination
