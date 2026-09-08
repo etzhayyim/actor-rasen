@@ -24,7 +24,7 @@
   No-server-key: this writer holds no key and performs NO network I/O — it only
   appends to a local file. G1: a CARE/RESEARCH map, NEVER an individual-genotype registry —
   no individual/sample/family genotypes; aggregate af_* only; coarse cytoband never precise coords."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             #?(:clj [clojure.java.io :as io])))
 
 (defn add [entity attr value] [":db/add" entity attr value])

@@ -7,7 +7,7 @@
 
   Pins the manifest structure and PUBLISH.md shape against hand-checked expectations."
   (:require [clojure.test :refer [deftest is testing run-tests]]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [rasen.methods.publish :as P]
             [rasen.methods.cid :as CID]
             #?(:clj [clojure.java.io :as io])))

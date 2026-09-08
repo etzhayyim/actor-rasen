@@ -7,7 +7,7 @@
   are read with cheshire (json.loads analogue, string-keyed). The live fetch path is covered by
   running `methods/ingest.py` on an operator/mesh node (G7)."
   (:require [clojure.test :refer [deftest is run-tests]]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [clojure.set]
             [clojure.java.io :as io]
             [cheshire.core :as json]
@@ -117,7 +117,7 @@
         [_ _ _ edges] (ingest/normalise-variant "rs334" hit clinsig-map pop-map)
         af-edges (filter #(= ":allele-frequency" (get % ":en/kind")) edges)
         allowed-pops (set (for [v (vals pop-map)]
-                            (str "pop." (str/lower-case (if (str/starts-with? v ":") (subs v 1) v)))))]
+                            (str "pop." (str/lower (if (str/starts-with? v ":") (subs v 1) v)))))]
     (is (seq af-edges) "no aggregate allele-frequency edges produced")
     (doseq [e af-edges]
       (is (contains? allowed-pops (get e ":en/from"))

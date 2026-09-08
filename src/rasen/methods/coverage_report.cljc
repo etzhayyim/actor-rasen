@@ -12,7 +12,7 @@
   cytoband never precise coords. PUBLIC reference data only — no individual genotypes surfaced.
 
   Pure fns; reuses rasen.methods.analyze for the loader. Portable .cljc."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [rasen.methods.analyze :as analyze]))
 
 ;; honest external denominators

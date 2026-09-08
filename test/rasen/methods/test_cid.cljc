@@ -12,7 +12,7 @@
   CIDv1 prefix bytes, the RFC4648 base32 alphabet, or the UTF-8 encoding fails this instantly.
   The module had no dedicated test (it was only exercised incidentally by test_ingest)."
   (:require [rasen.methods.cid :as cid]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [clojure.test :refer [deftest is run-tests]]))
 
 (deftest cidv1-raw-matches-ipfs-add

@@ -4,7 +4,7 @@
   Two of these guard constraints that are constitutional rather than technical: a record with
   no rsID is not representable at all under G1, and sex-stratified frequencies are not
   super-population frequencies even though their INFO keys look alike."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [clojure.test :refer [deftest is testing]]
             [rasen.methods.clinvar :as cv]
             [rasen.methods.gnomad :as gn]))

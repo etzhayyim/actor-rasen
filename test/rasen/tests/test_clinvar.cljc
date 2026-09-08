@@ -4,7 +4,7 @@
   The G1 controls here assert the REASON, not merely that something was refused: a negative
   test that only checks 'it threw' counts an unrelated failure as a successful discrimination
   (superproject CLAUDE.md, the six questions, #6)."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [clojure.test :refer [deftest is testing]]
             [rasen.methods.clinvar :as cv]))
 

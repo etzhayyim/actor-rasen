@@ -7,7 +7,7 @@
   what is asserted here is that `verify!` refuses in that situation, with a reason that names
   what was wrong."
   (:require [clojure.java.io :as io]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [clojure.test :refer [deftest is testing]]
             [rasen.methods.kotoba :as k]
             [rasen.methods.ledger-shards :as ls]))

@@ -27,7 +27,7 @@
   rasen.methods.analyze/load-graph returns a hash-map (order lost beyond 8 keys), so this ns
   re-derives the first-touch node-id order from the parsed forms and threads it via ::node-order
   metadata on the nodes map (load-file*), falling back to (keys nodes)."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [rasen.methods.analyze :as analyze]
             #?(:clj [clojure.java.io :as io])))
 

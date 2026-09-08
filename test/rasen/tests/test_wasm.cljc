@@ -11,7 +11,7 @@
   `json.loads(...)`. The dev fallback reads data/seed-genome-graph.kotoba.edn (no embedded seed
   under bb), exactly like app.py's _seed_text() fallback."
   (:require [clojure.test :refer [deftest is run-tests]]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [clojure.set]
             [clojure.java.io :as io]
             [cheshire.core :as json]

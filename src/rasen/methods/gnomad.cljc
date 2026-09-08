@@ -23,7 +23,7 @@
 
   Frequencies are copied, never derived: :en/grasping-load on an :allele-frequency 縁 IS the
   aggregate frequency (N1/N3)."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [rasen.methods.clinvar :as cv]))
 
 (def af-population
@@ -81,7 +81,7 @@
                 ":EAS" "East Asian (EAS)"
                 ":EUR" "European (non-Finnish, EUR)"
                 ":SAS" "South Asian (SAS)"}
-        pid (str "pop." (str/lower-case (subs popcode 1)))]
+        pid (str "pop." (str/lower (subs popcode 1)))]
     [pid {":genome/id" pid ":genome/kind" ":population" ":genome/label" (get labels popcode popcode)
           ":population/code" popcode ":genome/sourcing" ":authoritative"}]))
 

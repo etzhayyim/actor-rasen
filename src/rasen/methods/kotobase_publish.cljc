@@ -25,7 +25,7 @@
   idempotence; `:entity-fn` is the seam where a host maps ids to whatever its target requires
   (a lookup ref, for instance). Measured 2026-09-06: unauthenticated POST /api/transact returns
   401, so this has NOT been checked against the live plane."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [rasen.methods.kotoba :as k]
             [rasen.methods.ledger-shards :as ls]
             #?(:clj [clojure.java.io :as io])))

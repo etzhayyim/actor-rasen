@@ -2,7 +2,7 @@
   "rasen 螺旋 — coverage-report tests (ADR-2606101000). 1:1 Clojure port of tests/test_coverage.py."
   (:require [clojure.test :refer [deftest is run-tests]]
             [clojure.java.io :as io]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [rasen.methods.analyze :as analyze]
             [rasen.methods.coverage-report :as coverage]))
 
