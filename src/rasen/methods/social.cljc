@@ -18,7 +18,7 @@
       member/actor signature (build-live raises unconditionally at R0).
 
   Pure fns; deterministic; string-keyed post records (house style). Stdlib only."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def DISCLAIMER
   (str "【観測ミラー / accountability map — NOT a verdict, NOT advice, 非断定】 "

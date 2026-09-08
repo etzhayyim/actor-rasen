@@ -21,7 +21,7 @@
   A host wires that to R2/S3/B2. Only the LAST shard is ever open for appends, so `archive!`
   refuses to touch it — uploading a shard that is still growing would store a prefix and call
   it the shard."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [rasen.methods.kotoba :as k]
             [rasen.methods.ledger-shards :as ls]
             #?(:clj [clojure.java.io :as io])))

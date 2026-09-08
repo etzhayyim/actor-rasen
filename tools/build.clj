@@ -10,7 +10,7 @@
   (cherry-cljs, esbuild, @bytecodealliance/jco), wasm-tools, ipfs. Returns the built CID string."
   (:require [babashka.fs :as fs]
             [babashka.process :refer [shell]]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [cheshire.core :as json]))
 
 (def ^:private random-shim

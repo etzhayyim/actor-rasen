@@ -19,7 +19,7 @@
   Resume is by row count against a source fingerprint. A checkpoint from a DIFFERENT release
   is refused rather than resumed: rows are not stable identifiers across releases, so resuming
   release B at release A's offset would silently skip real rows."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [rasen.methods.autorun :as auto]
             [rasen.methods.clinvar :as cv]
             [rasen.methods.kotoba :as k]

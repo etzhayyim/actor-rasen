@@ -17,7 +17,7 @@
   injectable (tests pass a dry-run stub; default uses babashka.process/shell).
 
   No network/subprocess I/O at load/require time."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [rasen.methods.cid :as cid-lib]
             #?(:clj [clojure.java.io :as io])))
 

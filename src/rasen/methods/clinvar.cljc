@@ -23,7 +23,7 @@
 
   Pure and network-free by construction: the caller supplies parsed lines. The 442 MB gzip
   stream that produces those lines is host I/O and stays in the G7-gated runner."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 ;; ── G1: columns that must never reach the graph ──────────────────────────────
 ;; Not a comment. `g1-violations` is applied to every emitted node.
@@ -106,7 +106,7 @@
   [cell]
   (when (string? cell)
     (some (fn [tok]
-            (get clinsig-alias (str/lower-case (str/trim tok))))
+            (get clinsig-alias (str/lower (str/trim tok))))
           (str/split (str/trim cell) #";"))))
 
 (def ^:private type-category
@@ -121,23 +121,23 @@
 (defn type->category
   "ClinVar Type cell → :variant/category string, or nil when unmapped."
   [cell]
-  (when (string? cell) (get type-category (str/lower-case (str/trim cell)))))
+  (when (string? cell) (get type-category (str/lower (str/trim cell)))))
 
 (defn review->confidence
   "ClinVar ReviewStatus cell → 0..1. Unknown/blank status is the LOWEST tier, never the
   default-highest: an unrecognised status is unmeasured confidence, not good confidence."
   [cell]
-  (get review-status-confidence (str/lower-case (str/trim (or cell ""))) 0.2))
+  (get review-status-confidence (str/lower (str/trim (or cell ""))) 0.2))
 
 (defn- round6 [x] #?(:clj (double (/ (Math/round (* 1e6 (double x))) 1e6))
                      :cljs (/ (js/Math.round (* 1e6 x)) 1e6)))
 
 (defn- blank-cell?
-  [s] (or (nil? s) (= "" s) (= "-" s) (= "na" (str/lower-case (str s)))))
+  [s] (or (nil? s) (= "" s) (= "-" s) (= "na" (str/lower (str s)))))
 
 (defn- slug
   [s]
-  (-> (str/lower-case (str s))
+  (-> (str/lower (str s))
       (str/replace #"[^a-z0-9]+" "-")
       (str/replace #"^-+" "")
       (str/replace #"-+$" "")))
@@ -158,7 +158,7 @@
   (reduce (fn [m entry]
             (let [i (str/index-of entry ":")]
               (if (and i (pos? i))
-                (assoc m (str/lower-case (subs entry 0 i)) (subs entry (inc i)))
+                (assoc m (str/lower (subs entry 0 i)) (subs entry (inc i)))
                 m)))
           {} (remove str/blank? (str/split (or group "") #","))))
 
@@ -168,10 +168,10 @@
   [group name]
   (let [ids  (parse-phenotype-ids group)
         nm   (str/trim (or name ""))
-        drop? (contains? #{"" "not provided" "not specified" "see cases"} (str/lower-case nm))
+        drop? (contains? #{"" "not provided" "not specified" "see cases"} (str/lower nm))
         hit  (some (fn [[db prefix]]
                      (when-let [v (get ids db)]
-                       [(str prefix (str/replace (str/lower-case v) ":" "-"))
+                       [(str prefix (str/replace (str/lower v) ":" "-"))
                         (if (= db "mondo") v (str (case db "omim" "OMIM" "medgen" "MedGen"
                                                         "orphanet" "Orphanet" db) ":" v))]))
                    db-preference)]
@@ -243,7 +243,7 @@
                  syms    (->> (str/split (or (cell row idx "GeneSymbol") "") #";")
                               (map str/trim) (remove blank-cell?) distinct)
                  genes   (into {} (map (fn [s]
-                                         (let [gid (str "gene." (str/lower-case s))]
+                                         (let [gid (str "gene." (str/lower s))]
                                            [gid (cond-> {":genome/id" gid ":genome/kind" ":gene"
                                                          ":genome/label" s ":gene/symbol" s
                                                          ":gene/taxon" ":homo-sapiens"

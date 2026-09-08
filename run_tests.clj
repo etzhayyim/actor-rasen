@@ -1,4 +1,4 @@
-(require '[clojure.edn :as edn] '[clojure.java.io :as io] '[clojure.string :as str]
+(require '[clojure.edn :as edn] '[clojure.java.io :as io] '[kotoba.lang.text :as str]
          '[clojure.test :as t])
 (def c (edn/read-string (slurp "repository-contracts.edn")))
 (doseq [p (:required c)] (assert (.isFile (io/file p)) (str "missing " p)))

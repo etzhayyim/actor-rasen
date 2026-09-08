@@ -19,7 +19,7 @@
 
   The index is a PROJECTION — it can be deleted and rebuilt by scanning the shards in order
   (`reindex!`). The shards are canonical. Nothing derived is stored in them."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [rasen.methods.kotoba :as k]
             #?(:clj [clojure.java.io :as io])))
 

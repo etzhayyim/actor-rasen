@@ -4,7 +4,7 @@
 (ns rasen.tests.test-kotoba
   (:require [rasen.methods.kotoba :as k]
             [rasen.methods.autorun :as auto]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [clojure.test :refer [deftest is run-tests testing]]
             [clojure.java.io :as io]))
 

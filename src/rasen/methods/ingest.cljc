@@ -17,7 +17,7 @@
   (normalisation + EDN serialisation + content-address); the live `urllib`/`ipfs`/`subprocess`
   pipeline (`ingest`/`main`/`_get_json`) is host I/O kept behind #?(:clj …). House style: Python
   ':…' keyword strings stay strings; pure fns; reuses rasen.methods.analyze + rasen.methods.cid."
-  (:require [clojure.string :as str]
+  (:require [kotoba.lang.text :as str]
             [rasen.methods.analyze :as analyze]
             [rasen.methods.cid :as cidlib]
             #?(:clj [clojure.java.io :as io])))
@@ -52,7 +52,7 @@
   (-> (apply str (map (fn [c]
                         (if #?(:clj (Character/isLetterOrDigit c)
                                :cljs (re-matches #"[a-zA-Z0-9]" (str c)))
-                          (str/lower-case (str c))
+                          (str/lower (str c))
                           "-"))
                       s))
       (#(let [s %] ;; strip("-")
@@ -85,7 +85,7 @@
         taxon (cond (= taxid 9606) ":homo-sapiens"
                     taxid (str ":taxid-" taxid)
                     :else ":homo-sapiens")
-        n (cond-> {":genome/id" (str "gene." (str/lower-case symbol))
+        n (cond-> {":genome/id" (str "gene." (str/lower symbol))
                    ":genome/kind" ":gene"
                    ":genome/label" (or (get hit "name") symbol)
                    ":gene/symbol" symbol
@@ -121,7 +121,7 @@
                      (if (or (not gid) (not (str/starts-with? (str gid) "GO:")))
                        m
                        (let [w (get go-evidence-weight
-                                    (str/upper-case (str (get t "evidence" ""))) 0.4)
+                                    (str/upper (str (get t "evidence" ""))) 0.4)
                              term (or (get t "term") gid)]
                          (if (or (not (contains? m gid)) (> w (first (get m gid))))
                            (assoc m gid [w term])
@@ -131,7 +131,7 @@
                       (sort-by (fn [[gid [w _]]] [(- (double w)) gid]) best))]
      (reduce
       (fn [[pw-nodes edges] [gid [w term]]]
-        (let [pw-id (str "pw." (str/replace (str/lower-case gid) ":" "-"))]
+        (let [pw-id (str "pw." (str/replace (str/lower gid) ":" "-"))]
           [(assoc pw-nodes pw-id {":genome/id" pw-id ":genome/kind" ":pathway"
                                   ":genome/label" term ":pathway/source" ":GO"
                                   ":pathway/acc" gid ":genome/sourcing" ":authoritative"})
@@ -165,7 +165,7 @@
                       (sort-by (fn [[st [depth _]]] [depth st]) best))]
      (reduce
       (fn [[pw-nodes edges] [st [_ name]]]
-        (let [pw-id (str "pw.react-" (str/lower-case st))]
+        (let [pw-id (str "pw.react-" (str/lower st))]
           [(assoc pw-nodes pw-id {":genome/id" pw-id ":genome/kind" ":pathway"
                                   ":genome/label" name ":pathway/source" ":reactome"
                                   ":pathway/acc" st ":genome/sourcing" ":authoritative"})
@@ -198,7 +198,7 @@
         g0 (or (get dbsnp "gene") {})
         g (if (and (sequential? g0) (seq g0)) (first g0) g0)
         gsym (when (map? g) (get g "symbol"))
-        gene-id (when gsym (str "gene." (str/lower-case gsym)))
+        gene-id (when gsym (str "gene." (str/lower gsym)))
         located-edges (if gene-id
                         [{":en/from" vid ":en/to" gene-id ":en/kind" ":located-in"
                           ":en/grasping-load" 1.0 ":en/sourcing" ":authoritative"}]
@@ -210,7 +210,7 @@
         (reduce
          (fn [{:keys [phenos edges seen]} rcv]
            (let [sig-raw (str/trim (or (get rcv "clinical_significance") ""))
-                 clinsig (get clinsig-map (str/lower-case sig-raw))]
+                 clinsig (get clinsig-map (str/lower sig-raw))]
              (if-not clinsig
                {:phenos phenos :edges edges :seen seen}
                (let [cond0 (or (get rcv "conditions") {})
@@ -220,7 +220,7 @@
                      medgen (get ids "medgen")
                      name (or (get cond1 "name") "unspecified condition")
                      [ph-id code] (cond
-                                    mondo [(str "ph." (str/replace (str/lower-case mondo) ":" "-")) mondo]
+                                    mondo [(str "ph." (str/replace (str/lower mondo) ":" "-")) mondo]
                                     medgen [(str "ph.medgen-" medgen) (str "MedGen:" medgen)]
                                     :else [(str "ph." (subs (slug name) 0 (min 48 (count (slug name))))) nil])
                      phenos (if (contains? phenos ph-id)
@@ -248,7 +248,7 @@
          (fn [acc [field popcode]]
            (let [v (get af field)]
              (if (number? v)
-               (let [pop-id (str "pop." (str/lower-case (lstrip-colon-str popcode)))]
+               (let [pop-id (str "pop." (str/lower (lstrip-colon-str popcode)))]
                  (conj acc {":en/from" pop-id ":en/to" vid ":en/kind" ":allele-frequency"
                             ":en/grasping-load" (round6 (double v)) ":en/sourcing" ":authoritative"}))
                acc)))
@@ -266,7 +266,7 @@
                 ":SAS" "South Asian (SAS)"}]
     (reduce
      (fn [m popcode]
-       (let [pid (str "pop." (str/lower-case (lstrip-colon-str popcode)))]
+       (let [pid (str "pop." (str/lower (lstrip-colon-str popcode)))]
          (assoc m pid {":genome/id" pid ":genome/kind" ":population"
                        ":genome/label" (get labels popcode popcode)
                        ":population/code" popcode ":genome/sourcing" ":authoritative"})))

@@ -5,7 +5,7 @@
   cannot tell that from a short release, so most of what is asserted here is that a truncated
   or short-read source never reports :complete."
   (:require [clojure.java.io :as io]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [clojure.test :refer [deftest is testing]]
             [rasen.methods.clinvar :as cv]
             [rasen.methods.clinvar-run :as run]
