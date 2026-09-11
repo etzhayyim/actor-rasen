@@ -47,7 +47,7 @@
   digits, trailing zeros stripped, an integral value renders with no decimal point (1.0 → \"1\")."
   [v]
   ;; Portable: clj uses JVM Math/format; cljs (cherry/ComponentizeJS wasm, ADR-2606261200)
-  ;; uses native Number/Math/toPrecision. :clj branch unchanged (bb test parity).
+  ;; uses native Number/Math/toPrecision. :clj branch unchanged (kbb -M:test parity).
   (let [d       #?(:clj (double v) :cljs (js/Number v))
         finite? #?(:clj (and (not (Double/isInfinite d)) (not (Double/isNaN d))) :cljs (js/isFinite d))
         rint    #?(:clj (Math/rint d) :cljs (js/Math.round d))
