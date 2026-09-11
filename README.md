@@ -13,11 +13,11 @@ person, or support insurance, employment, forensic, or eugenic decisions.
 Network ingest and publication remain Council- and operator-gated.
 
 ```bash
-bb test
-bb -m rasen.methods.analyze
-bb -m rasen.methods.datom-emit
-bb -m rasen.methods.coverage-report
-bb -m rasen.methods.ingest --offline --no-pin
+kbb -M:test
+kbb -m rasen.methods.analyze
+kbb -m rasen.methods.datom-emit
+kbb -m rasen.methods.coverage-report
+kbb -m rasen.methods.ingest --offline --no-pin
 ```
 
 Canonical actor metadata is in `actor.edn`, `identity.edn`, `manifest.edn`, and

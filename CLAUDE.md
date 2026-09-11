@@ -6,5 +6,5 @@
 - Keep Clojure/ClojureScript implementation in `src/`, tests in `test/`, and
   wasmCloud CLJS/WIT sources in `wasm/`.
 - Do not reintroduce Go, TinyGo, Python wasm glue, shell launchers, or JSON-LD.
-- Run `bb test` before publishing changes.
+- Run `kbb -M:test` before publishing changes.
 - Public network ingest and IPFS/IPNS publication are G7 operator-gated.

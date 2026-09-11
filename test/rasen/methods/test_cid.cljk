@@ -1,4 +1,4 @@
-#!/usr/bin/env bb
+#!/usr/bin/env kbb
 ;; rasen 螺旋 — CIDv1 content-address parity test (against `ipfs add`).
 ;; Run: bb test
 (ns rasen.methods.test-cid

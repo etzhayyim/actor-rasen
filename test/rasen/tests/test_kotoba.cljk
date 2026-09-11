@@ -1,4 +1,4 @@
-#!/usr/bin/env bb
+#!/usr/bin/env kbb
 ;; rasen 螺旋 — genome-ledger persistence + heartbeat tests.
 ;; Run: bb test
 (ns rasen.tests.test-kotoba

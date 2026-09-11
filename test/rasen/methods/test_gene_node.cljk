@@ -1,4 +1,4 @@
-#!/usr/bin/env bb
+#!/usr/bin/env kbb
 ;; rasen 螺旋 — validation of the MyGene.info → gene-node ingest mapping.
 ;; Run: bb test
 (ns rasen.methods.test-gene-node

@@ -1,4 +1,4 @@
-#!/usr/bin/env bb
+#!/usr/bin/env kbb
 ;; rasen 螺旋 — public-genetics graph DATOM-LOG writer (content-addressed commit-DAG).
 (ns rasen.methods.kotoba
   "kotoba.cljc — rasen 螺旋 append-only GENOME LEDGER writer

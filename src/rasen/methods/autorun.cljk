@@ -1,4 +1,4 @@
-#!/usr/bin/env bb
+#!/usr/bin/env kbb
 ;; rasen 螺旋 — autonomous heartbeat: load the genome graph → append GROUND datoms.
 (ns rasen.methods.autorun
   "autorun.cljc — rasen 螺旋 deterministic heartbeat (ADR-2606101000, inochi/tate pattern).

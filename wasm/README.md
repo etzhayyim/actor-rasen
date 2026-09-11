@@ -14,7 +14,7 @@ Component via **cherry+ComponentizeJS (ADR-2606261200)** (the watatsuna pattern,
 care-priority is a graph integral over `:en/grasping-load` × disclosed `:en/clinsig` — no
 native BLAS, no heavy deps. The same code runs:
 
-- as a CLI cell (`bb -m rasen.methods.analyze`) on a mesh node, and
+- as a CLI cell (`kbb -m rasen.methods.analyze`) on a mesh node, and
 - in-WASM in the browser (ameno) with **zero server trust** — the reader recomputes the
   component CID and compares it to the DID-doc CID before executing.
 

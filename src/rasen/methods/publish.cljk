@@ -1,4 +1,4 @@
-#!/usr/bin/env bb
+#!/usr/bin/env kbb
 ;; rasen 螺旋 — PUBLISH the ingested public-genetics graph to public IPFS.
 (ns rasen.methods.publish
   "publish.cljc — rasen 螺旋 IPFS-pin + IPNS-publish + git-tracked snapshot (ADR-2606101000).
@@ -64,7 +64,7 @@
          "PUBLIC reference genetics (genes / variants / phenotypes / population-AGGREGATE allele"
          "frequencies / GO + Reactome pathways), content-addressed to kotoba IPFS (CIDv1, raw,"
          "sha2-256). The CID is byte-identical to `ipfs add --cid-version=1 --raw-leaves` and"
-         "verifiable with `bb -m rasen.methods.cid graph.edn` — no daemon required."
+         "verifiable with `kbb -m rasen.methods.cid graph.edn` — no daemon required."
          ""
          "## Artifacts"
          ""
@@ -84,7 +84,7 @@
          "```bash"
          "# fetch from any public gateway and re-content-address — must equal the CID above"
          (str "curl -sSL https://ipfs.io/ipfs/" (or (get g "cid") (get g :cid) "<cid>") " -o graph.edn")
-         "bb -m rasen.methods.cid graph.edn   # prints the CID; compare"
+         "kbb -m rasen.methods.cid graph.edn   # prints the CID; compare"
          "```"
          ""
          (str "Gateways: " (str/join ", " (get m "gateways" [])))
@@ -250,7 +250,7 @@
                           "  (graph CID " graph-cid ")"))
             {:ok true :manifest manifest}))))))
 
-;; ── CLI entrypoint (bb direct invocation) ────────────────────────────────────
+;; ── CLI entrypoint (kbb -M:direct invocation) ────────────────────────────────────
 
 #?(:clj
    (when (= *file* (System/getProperty "babashka.file"))
