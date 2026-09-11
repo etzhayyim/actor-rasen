@@ -46,7 +46,7 @@
         (finally (rm-r root))))))
 
 (deftest index-file-is-real-edn
-  (testing "run_tests.clj reads every .edn in the tree with clojure.edn"
+  (testing "run_tests.cljk reads every .edn in the tree with clojure.edn"
     (let [root (tmp-root)]
       (try
         (ls/append-txs! root (chain 2))

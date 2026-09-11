@@ -33,7 +33,7 @@
 
 (defn- edn-scalar
   "Serialise an index scalar. In-memory keys are the house ':…' STRINGS; on disk they must be
-  real EDN keywords, because `run_tests.clj` reads every .edn in the tree with `clojure.edn`
+  real EDN keywords, because `run_tests.cljk` reads every .edn in the tree with `clojure.edn`
   and because a quoted key would read back as a different value than it was written from.
   `pr-str` cannot be used for the index: it collapses same-namespace maps to `#:index{…}`,
   which the minimal reader in `rasen.methods.kotoba` parses to the string \"#:index\" —
