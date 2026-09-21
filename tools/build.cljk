@@ -41,7 +41,7 @@
      (doseq [m ["analyze" "datom_emit" "coverage_report"]]
        (fs/copy (fs/file methods (str m ".cljc"))
                 (fs/file astage "methods" (str m ".cljc")) {:replace-existing true}))
-     (fs/copy (fs/file wasm "app.cljs") (fs/file astage "app.cljs") {:replace-existing true})
+     (fs/copy (fs/file wasm "app.cljk") (fs/file astage "app.cljs") {:replace-existing true})
      (spit (fs/file astage "seed.cljs")
            (str "(ns rasen.seed)\n(def edn " (json/generate-string (slurp seed-file)) ")\n"))
      ;; 2. cherry compile each ns → ESM. cherry bundles cljs.core, so the methods' full
