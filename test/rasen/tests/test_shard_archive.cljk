@@ -5,7 +5,7 @@
   actually store the bytes. There is no recovery from it — the shard is canonical, and the
   ledger finds out at the next verify, when there is nothing left to restore from."
   (:require [clojure.java.io :as io]
-            [clojure.test :refer [deftest is testing]]
+            [kotoba.test :refer [deftest is testing]]
             [rasen.methods.kotoba :as k]
             [rasen.methods.ledger-shards :as ls]
             [rasen.methods.shard-archive :as ar]))

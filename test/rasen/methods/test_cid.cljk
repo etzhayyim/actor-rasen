@@ -13,7 +13,7 @@
   The module had no dedicated test (it was only exercised incidentally by test_ingest)."
   (:require [rasen.methods.cid :as cid]
             [kotoba.lang.text :as str]
-            [clojure.test :refer [deftest is run-tests]]))
+            [kotoba.test :refer [deftest is run-tests]]))
 
 (deftest cidv1-raw-matches-ipfs-add
   (is (= "bafkreibm6jg3ux5qumhcn2b3flc3tyu6dmlb4xa7u5bf44yegnrjhc4yeq" (cid/cidv1-raw "hello")))

@@ -5,7 +5,7 @@
   Mirrors tests/test_analyze.py: loads the seed via the datom-emit ordered loader (which
   carries ::node-order so emit walks nodes in EDN read order), analyzes, emits, and asserts
   the ground/transient split + determinism (repeat-emit byte-identical)."
-  (:require [clojure.test :refer [deftest is run-tests]]
+  (:require [kotoba.test :refer [deftest is run-tests]]
             [kotoba.lang.text :as str]
             [clojure.java.io :as io]
             [rasen.methods.analyze :as analyze]

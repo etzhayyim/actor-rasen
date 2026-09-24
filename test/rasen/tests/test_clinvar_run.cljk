@@ -6,7 +6,7 @@
   or short-read source never reports :complete."
   (:require [clojure.java.io :as io]
             [kotoba.lang.text :as str]
-            [clojure.test :refer [deftest is testing]]
+            [kotoba.test :refer [deftest is testing]]
             [rasen.methods.clinvar :as cv]
             [rasen.methods.clinvar-run :as run]
             [rasen.methods.ledger-shards :as ls]))
