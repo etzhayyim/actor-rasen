@@ -1,5 +1,10 @@
 {:paths ["src" "test"]
- :deps {org.kotoba-lang/io-multiformats
+ :deps {
+        ;; kotoba.lang.edn replaced clojure.edn here (2026-09-23). An explicit floor:
+        ;; tools.deps takes the NEWEST sha it is shown, and kbb resolves git deps
+        ;; only from nbb.edn, so every project file this repo has names it.
+        io.github.kotoba-lang/edn {:git/sha "79dba32c8892058842c57783f06a2dfe4601aeb0"}
+       org.kotoba-lang/io-multiformats
         {:git/url "https://github.com/kotoba-lang/io-multiformats.git"
          :git/sha "af315519c0ae181da9e8dc532abc2d22c782efd4"}}
  :tasks {test {:task (load-file "run_tests.cljk")}}}
