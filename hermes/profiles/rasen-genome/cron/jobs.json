@@ -1,0 +1,26 @@
+{
+  "jobs": [
+    {
+      "base_url": null,
+      "context_from": null,
+      "deliver": "local",
+      "enabled": true,
+      "enabled_toolsets": null,
+      "id": "13554accbbb3",
+      "model": "qwen3.8-27b-whitehacker",
+      "name": "rasen-genome-floors",
+      "no_agent": false,
+      "prompt": "公開参照遺伝学コーパス（rasen 螺旋）の床が動いた。SOUL.md と ~/.hermes/profiles/rasen-genome/workspace/AGENTS.md の規律に従って、変化した 1 件だけを扱う。\n\nまず何が変わったかを MONITOR CHANGE の diff から読む。次にその 1 件だけを測る:\n- ingest-process が yes→no かつ checkpoint-status が :complete でない → 実行が中断した。~/.gftd/rasen-genome/run.log の最終行で :truncated / :corrupt / :interrupted を確認し、resume で続きから再開する（checkpoint は進捗を保持している。0 から引き直さない）\n- checkpoint-status が :complete → 台帳を verify し、tx 数・datom 数・シャード数を ADR-2609062000 に記録する\n- west-pin が behind → nbb scripts/west-pin-put.cljs actor-rasen <sha> で前進させる\n- ledger が absent → 台帳が消えた。R2 の etzhayyim-rasen-genome から restore-all! で戻せるか確かめる。戻せないなら、そう報告する（作り直す前に）\n\n1 反復 = 1 件。測っていないことを『問題なし』と書かない。実行できなかった検査は未測定と書く。",
+      "provider": "kotoba",
+      "schedule": {
+        "kind": "cron",
+        "expr": "0 8 * * *",
+        "display": "0 8 * * *"
+      },
+      "script": null,
+      "skill": null,
+      "skills": [],
+      "workdir": "~/github/com-junkawasaki"
+    }
+  ]
+}
