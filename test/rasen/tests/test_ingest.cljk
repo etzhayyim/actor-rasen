@@ -8,7 +8,7 @@
   running `methods/ingest.py` on an operator/mesh node (G7)."
   (:require [kotoba.test :refer [deftest is run-tests]]
             [kotoba.lang.text :as str]
-            [clojure.set]
+            [kotoba.lang.coll]
             [clojure.java.io :as io]
             [cheshire.core :as json]
             [rasen.methods.cid :as cid]
@@ -133,7 +133,7 @@
         forbidden #{":sample/id" ":individual/id" ":patient/id" ":genotype/call"
                     ":sequence/raw" ":family/id"}]
     (doseq [m (concat [vnode] (vals phenos) edges)]
-      (let [leaked (clojure.set/intersection (set (keys m)) forbidden)]
+      (let [leaked (kotoba.lang.coll/intersection (set (keys m)) forbidden)]
         (is (empty? leaked) (str "individual-level field leaked: " leaked))))))
 
 (deftest test-serialise-graph-roundtrips-and-addresses

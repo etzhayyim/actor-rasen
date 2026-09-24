@@ -7,7 +7,7 @@
   the ground/transient split + determinism (repeat-emit byte-identical)."
   (:require [kotoba.test :refer [deftest is run-tests]]
             [kotoba.lang.text :as str]
-            [clojure.java.io :as io]
+            [kotoba.io :as io]
             [rasen.methods.analyze :as analyze]
             [rasen.methods.datom-emit :as datom-emit]))
 

@@ -24,7 +24,7 @@
   No-server-key: this writer holds no key and performs NO network I/O — it only
   appends to a local file. G1: a CARE/RESEARCH map, NEVER an individual-genotype registry —
   no individual/sample/family genotypes; aggregate af_* only; coarse cytoband never precise coords."
-  (:require [kotoba.lang.text :as str]
+  (:require [kotoba.bytes :as kbytes] [kotoba.lang.text :as str]
             #?(:clj [clojure.java.io :as io])))
 
 (defn add [entity attr value] [":db/add" entity attr value])
@@ -60,7 +60,7 @@
   (str "{\"datoms\":[" (str/join "," (map json-val datoms)) "],\"prev\":" (json-val prev-cid) "}"))
 
 (defn- sha256-hex [^String s]
-  (let [b (.digest (java.security.MessageDigest/getInstance "SHA-256") (.getBytes s "UTF-8"))]
+  (let [b (.digest (java.security.MessageDigest/getInstance "SHA-256") (kbytes/utf8-bytes s))]
     (apply str (map #(format "%02x" (bit-and (int %) 0xff)) b))))
 
 (defn tx-cid

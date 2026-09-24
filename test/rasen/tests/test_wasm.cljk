@@ -12,8 +12,8 @@
   under bb), exactly like app.py's _seed_text() fallback."
   (:require [kotoba.test :refer [deftest is run-tests]]
             [kotoba.lang.text :as str]
-            [clojure.set]
-            [clojure.java.io :as io]
+            [kotoba.lang.coll]
+            [kotoba.io :as io]
             [cheshire.core :as json]
             [rasen.methods.analyze :as analyze]
             [rasen.methods.datom-emit :as datom-emit]
@@ -66,7 +66,7 @@
     (is (= #{"care" "burden" "pleiotropy"} (set (keys out))))
     (is (seq (get out "care")) "no care-priority rows")
     (let [top (first (get out "care"))]
-      (is (clojure.set/subset? #{"id" "label" "score"} (set (keys top)))))
+      (is (kotoba.lang.coll/subset? #{"id" "label" "score"} (set (keys top)))))
     ;; rows are score-descending
     (let [scores (mapv #(get % "score") (get out "care"))]
       (is (= scores (vec (reverse (sort scores))))))))

@@ -16,8 +16,8 @@
   port is a separate unit). All five PURE analyze assertions are ported 1:1."
   (:require [kotoba.test :refer [deftest is testing run-tests]]
             [kotoba.lang.text :as str]
-            [clojure.set]
-            [clojure.java.io :as io]
+            [kotoba.lang.coll]
+            [kotoba.io :as io]
             [rasen.methods.analyze :as analyze]))
 
 (def actor-dir (io/file "."))
@@ -30,7 +30,7 @@
     (is (>= (count nodes) 30) (str "expected a real seed, got " (count nodes) " nodes"))
     (is (>= (count edges) 40) (str "expected a real 縁 web, got " (count edges) " edges"))
     (let [kinds (set (map #(get % ":genome/kind") (vals nodes)))]
-      (is (clojure.set/subset? #{":gene" ":variant" ":phenotype"} kinds)
+      (is (kotoba.lang.coll/subset? #{":gene" ":variant" ":phenotype"} kinds)
           (str "missing core kinds: " kinds)))
     (doseq [e edges]
       (is (contains? nodes (get e ":en/from")) (str "dangling from: " (get e ":en/from")))
@@ -100,7 +100,7 @@
           forbidden #{":sample/id" ":individual/id" ":patient/id" ":genotype/call"
                       ":sequence/raw" ":family/id"}]
       (doseq [n (vals nodes)]
-        (let [leaked (clojure.set/intersection (set (keys n)) forbidden)]
+        (let [leaked (kotoba.lang.coll/intersection (set (keys n)) forbidden)]
           (is (empty? leaked) (str "individual-level field leaked: " leaked))))
       ;; every :allele-frequency edge originates from a :population node (aggregate, never a person)
       (doseq [e edges

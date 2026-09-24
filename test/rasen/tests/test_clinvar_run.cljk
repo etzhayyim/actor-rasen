@@ -4,7 +4,7 @@
   A download that stops early decompresses cleanly up to the cut and then ends. The loop
   cannot tell that from a short release, so most of what is asserted here is that a truncated
   or short-read source never reports :complete."
-  (:require [clojure.java.io :as io]
+  (:require [kotoba.bytes :as kbytes] [kotoba.io :as kio] [clojure.java.io :as io]
             [kotoba.lang.text :as str]
             [kotoba.test :refer [deftest is testing]]
             [rasen.methods.clinvar :as cv]
@@ -54,7 +54,7 @@
   "Write `text` gzipped to `f`; returns the compressed byte count."
   [f text]
   (with-open [out (java.util.zip.GZIPOutputStream. (io/output-stream f))]
-    (.write out (.getBytes ^String text "UTF-8")))
+    (.write out (kbytes/utf8-bytes ^String text)))
   (.length f))
 
 ;; ── pure helpers ────────────────────────────────────────────────────────────
@@ -114,7 +114,7 @@
           root (io/file d "ledger")]
       (try
         (let [n (write-gz! gz (corpus-text 200))
-              bytes (java.util.Arrays/copyOf (java.nio.file.Files/readAllBytes (.toPath gz))
+              bytes (java.util.Arrays/copyOf (kio/read-all-bytes gz)
                                              (int (* 0.6 n)))]
           (io/copy bytes cut)
           (let [e (try (run/run! root {:source (str cut) :batch {:max-datoms 200}}) nil
@@ -213,7 +213,7 @@
           root (io/file d "ledger")]
       (try
         (let [n (write-gz! gz (corpus-text 400))
-              bytes (java.util.Arrays/copyOf (java.nio.file.Files/readAllBytes (.toPath gz))
+              bytes (java.util.Arrays/copyOf (kio/read-all-bytes gz)
                                              (int (* 0.7 n)))]
           (io/copy bytes cut)
           (try (run/run! root {:source (str cut) :fingerprint "rel-1"
