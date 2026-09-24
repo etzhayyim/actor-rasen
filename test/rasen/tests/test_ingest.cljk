@@ -6,7 +6,7 @@
   (real MyVariant.info / MyGene / Reactome response shapes) — no network needed. JSON fixtures
   are read with cheshire (json.loads analogue, string-keyed). The live fetch path is covered by
   running `methods/ingest.py` on an operator/mesh node (G7)."
-  (:require [clojure.test :refer [deftest is run-tests]]
+  (:require [kotoba.test :refer [deftest is run-tests]]
             [kotoba.lang.text :as str]
             [clojure.set]
             [clojure.java.io :as io]

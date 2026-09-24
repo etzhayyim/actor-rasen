@@ -1,5 +1,5 @@
 (require '[clojure.edn :as edn] '[clojure.java.io :as io] '[kotoba.lang.text :as str]
-         '[clojure.test :as t])
+         '[kotoba.test :as t])
 (def c (edn/read-string (slurp "repository-contracts.edn")))
 (doseq [p (:required c)] (assert (.isFile (io/file p)) (str "missing " p)))
 (doseq [f (file-seq (io/file ".")) :when (and (.isFile f) (str/ends-with? (.getName f) ".edn")

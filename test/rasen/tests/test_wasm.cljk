@@ -10,7 +10,7 @@
   (json.dumps ensure_ascii=False analogue) and re-parsed for the assertions, mirroring
   `json.loads(...)`. The dev fallback reads data/seed-genome-graph.kotoba.edn (no embedded seed
   under bb), exactly like app.py's _seed_text() fallback."
-  (:require [clojure.test :refer [deftest is run-tests]]
+  (:require [kotoba.test :refer [deftest is run-tests]]
             [kotoba.lang.text :as str]
             [clojure.set]
             [clojure.java.io :as io]

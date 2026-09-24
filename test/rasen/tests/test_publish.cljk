@@ -6,7 +6,7 @@
   real IPFS daemon or network is needed.
 
   Pins the manifest structure and PUBLISH.md shape against hand-checked expectations."
-  (:require [clojure.test :refer [deftest is testing run-tests]]
+  (:require [kotoba.test :refer [deftest is testing run-tests]]
             [kotoba.lang.text :as str]
             [rasen.methods.publish :as P]
             [rasen.methods.cid :as CID]

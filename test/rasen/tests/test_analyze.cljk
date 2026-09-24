@@ -14,7 +14,7 @@
   (test_datom_emit_ground_and_transient + test_determinism). Those two assertions depend on
   the unported `datom_emit` module, so they are intentionally omitted here (the datom_emit
   port is a separate unit). All five PURE analyze assertions are ported 1:1."
-  (:require [clojure.test :refer [deftest is testing run-tests]]
+  (:require [kotoba.test :refer [deftest is testing run-tests]]
             [kotoba.lang.text :as str]
             [clojure.set]
             [clojure.java.io :as io]

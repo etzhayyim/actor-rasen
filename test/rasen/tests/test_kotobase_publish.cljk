@@ -5,7 +5,7 @@
   an acknowledgement. That leaves a hole in the projection which no later run will fill,
   because every later run starts after it."
   (:require [clojure.java.io :as io]
-            [clojure.test :refer [deftest is testing]]
+            [kotoba.test :refer [deftest is testing]]
             [rasen.methods.kotoba :as k]
             [rasen.methods.kotobase-publish :as pub]
             [rasen.methods.ledger-shards :as ls]))

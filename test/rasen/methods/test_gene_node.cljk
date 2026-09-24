@@ -9,7 +9,7 @@
   and that the optional cytoband/ensembl fields appear only when their source field is present —
   so a regression that mis-keyed a field or broke the Ensembl-shape handling is caught."
   (:require [rasen.methods.ingest :as ing]
-            [clojure.test :refer [deftest is run-tests]]))
+            [kotoba.test :refer [deftest is run-tests]]))
 
 (deftest maps-a-full-mygene-hit-to-a-gene-node
   (let [n (ing/gene-node-from-mygene
