@@ -17,7 +17,7 @@
   (:require [kotoba.lang.text :as str]
             [rasen.methods.datom-emit :as de]
             [rasen.methods.kotoba :as k]
-            #?(:clj [clojure.java.io :as io])))
+            #?(:clj [kotoba.io :as io])))
 
 (defn- node-order [nodes]
   ;; de/load-file* attaches :rasen.methods.datom-emit/node-order; fall back to (keys nodes)

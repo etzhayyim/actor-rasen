@@ -11,7 +11,7 @@
   (verified against /opt/homebrew/bin/ipfs at authoring time). A drift in the multihash, the
   CIDv1 prefix bytes, the RFC4648 base32 alphabet, or the UTF-8 encoding fails this instantly.
   The module had no dedicated test (it was only exercised incidentally by test_ingest)."
-  (:require [rasen.methods.cid :as cid]
+  (:require [kotoba.bytes :as kbytes] [rasen.methods.cid :as cid]
             [kotoba.lang.text :as str]
             [kotoba.test :refer [deftest is run-tests]]))
 
@@ -29,7 +29,7 @@
 (deftest accepts-bytes-and-string-identically
   ;; cidv1-raw takes a String (UTF-8 encoded) or a byte-array — same content, same CID
   (is (= (cid/cidv1-raw "etzhayyim")
-         (cid/cidv1-raw (.getBytes "etzhayyim" "UTF-8")))))
+         (cid/cidv1-raw (kbytes/utf8-bytes "etzhayyim")))))
 
 (deftest cid-has-the-cidv1-raw-sha256-shape
   (let [c (cid/cidv1-raw "hello")]
