@@ -4,7 +4,7 @@
   The failure worth engineering against is a watermark that advances on something that was not
   an acknowledgement. That leaves a hole in the projection which no later run will fill,
   because every later run starts after it."
-  (:require [clojure.java.io :as io]
+  (:require [kotoba.lang.error :as kerror] [clojure.java.io :as io]
             [kotoba.test :refer [deftest is testing]]
             [rasen.methods.kotoba :as k]
             [rasen.methods.kotobase-publish :as pub]
@@ -43,7 +43,7 @@
                              (fn [e] [:genome/id e])))
       "entity-fn is where a target's identity convention goes")
   (doseq [bad [[":db/retract" "e" ":a" "v"] [":db/add" "e" ":a"] nil "nope"]]
-    (is (thrown? clojure.lang.ExceptionInfo (pub/datom->tx-form bad identity))
+    (is (thrown? kerror/ExceptionInfo (pub/datom->tx-form bad identity))
         "anything that is not a ledger :db/add is refused, never dropped")))
 
 (deftest acknowledgement-is-recognised-not-assumed
@@ -59,7 +59,7 @@
         "an error alongside a commit is still an error")))
 
 (deftest a-watermark-ahead-of-the-ledger-is-refused
-  (is (thrown? clojure.lang.ExceptionInfo (pub/plan 3 5))
+  (is (thrown? kerror/ExceptionInfo (pub/plan 3 5))
       "the projection cannot have seen more transactions than exist")
   (is (= {:from-tx 3 :pending 2} (pub/plan 5 3))))
 
@@ -130,4 +130,4 @@
       (finally (rm-r root)))))
 
 (deftest no-transact-fn-is-refused
-  (is (thrown? clojure.lang.ExceptionInfo (pub/publish! (tmp-root) {}))))
+  (is (thrown? kerror/ExceptionInfo (pub/publish! (tmp-root) {}))))

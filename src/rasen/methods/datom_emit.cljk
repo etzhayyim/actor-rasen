@@ -29,7 +29,7 @@
   metadata on the nodes map (load-file*), falling back to (keys nodes)."
   (:require [kotoba.lang.text :as str]
             [rasen.methods.analyze :as analyze]
-            #?(:clj [clojure.java.io :as io])))
+            #?(:clj [kotoba.io :as io])))
 
 ;; attributes promoted from each node/edge map into ground datoms (stable order = determinism)
 (def node-attrs
@@ -165,7 +165,7 @@
            {:keys [nodes edges]} (load-file* seed)
            res (analyze/analyze nodes edges)
            out (io/file outdir "genome-datoms.kotoba.edn")]
-       (.mkdirs outdir)
+       (io/mkdirs outdir)
        (spit out (emit nodes edges res tx))
        (println (str "rasen datom log → " out " (" (count nodes) " nodes + " (count edges)
                      " 縁, tx=" tx ")"))

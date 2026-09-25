@@ -4,7 +4,7 @@
   records-for / cell-plan / all-cell-plans. Introspects `cell-specs` rather
   than hardcoding cell names, so it holds regardless of which cells this
   actor's manifest declares."
-  (:require [kotoba.lang.text :as str]
+  (:require [kotoba.lang.error :as kerror] [kotoba.lang.text :as str]
             [kotoba.test :refer [deftest is testing]]
             [rasen.murakumo :as m]))
 
@@ -82,7 +82,7 @@
              (count (:effects plan)))))))
 
 (deftest cell-plan-throws-on-unknown-cell
-  (is (thrown? #?(:clj clojure.lang.ExceptionInfo :cljs ExceptionInfo)
+  (is (thrown? kerror/ExceptionInfo
                (m/cell-plan :totally-not-a-real-cell {}))))
 
 (deftest all-cell-plans-covers-every-cell

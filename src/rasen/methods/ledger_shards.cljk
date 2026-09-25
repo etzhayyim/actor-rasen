@@ -21,7 +21,7 @@
   (`reindex!`). The shards are canonical. Nothing derived is stored in them."
   (:require [kotoba.lang.text :as str]
             [rasen.methods.kotoba :as k]
-            #?(:clj [clojure.java.io :as io])))
+            #?(:clj [kotoba.io :as io])))
 
 (def index-version 1)
 
@@ -145,11 +145,11 @@
        not read it as an empty ledger; `verify!` refuses on nil rather than reporting ok."
        [root]
        (let [f (index-path root)]
-         (when (.exists f) (k/parse-edn (slurp f)))))
+         (when (io/exists? f) (k/parse-edn (slurp f)))))
 
      (defn write-index! [root index]
        (let [f (index-path root)]
-         (when-let [p (.getParentFile f)] (.mkdirs p))
+         (when-let [p (io/parent-file f)] (io/mkdirs p))
          (spit f (str ";; rasen 螺旋 — GENOME LEDGER SHARD INDEX. Generated projection; rebuildable\n"
                       ";; from the shards by `reindex!`. The shards are canonical, this file is not.\n"
                       (index->edn index) "\n"))
@@ -160,7 +160,7 @@
        unreadable shard must never look like an empty one."
        [root seq-n]
        (let [f (shard-path root seq-n)]
-         (when-not (.exists f)
+         (when-not (io/exists? f)
            (throw (ex-info "shard missing" {:seq seq-n :path (str f)})))
          (->> (str/split-lines (slurp f))
               (map str/trim)
@@ -199,8 +199,8 @@
                     seq-n (if roll? (count shards) (get last-s ":shard/seq"))
                     prev-cid (if roll? (get ix ":index/head-cid") (get last-s ":shard/prev-cid"))
                     f (shard-path root seq-n)
-                    _ (when-let [p (.getParentFile f)] (.mkdirs p))
-                    _ (when-not (.exists f) (spit f header))
+                    _ (when-let [p (io/parent-file f)] (io/mkdirs p))
+                    _ (when-not (io/exists? f) (spit f header))
                     tx (first remaining)
                     _ (spit f (str (k/tx->edn tx) "\n") :append true)
                     n-datoms (count (get tx ":tx/datoms"))
@@ -264,11 +264,11 @@
        absent. Refuses when shard 0 itself is absent: an empty directory must not produce an
        index claiming an empty-but-valid ledger."
        [root]
-       (when-not (.exists (shard-path root 0))
+       (when-not (io/exists? (shard-path root 0))
          (throw (ex-info "reindex: no shard 0 — refusing to synthesise an empty index"
                          {:root (str root)})))
        (loop [i 0, prev "", entries [], tx-n 0, dt-n 0]
-         (if-not (.exists (shard-path root i))
+         (if-not (io/exists? (shard-path root i))
            (write-index! root {":index/version" index-version
                                ":index/tx-count" tx-n ":index/datom-count" dt-n
                                ":index/head-cid" prev ":index/shards" entries})
@@ -287,7 +287,7 @@
        ([log-path root capacity]
         (let [src (k/read-log log-path)
               src-head (if (seq src) (get (last src) ":tx/cid") "")]
-          (when (.exists (index-path root))
+          (when (io/exists? (index-path root))
             (throw (ex-info "migrate: an index already exists — refusing to overwrite"
                             {:index (str (index-path root))})))
           (when (empty? src)
