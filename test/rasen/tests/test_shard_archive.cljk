@@ -4,7 +4,7 @@
   Almost everything here is about one failure: deleting a local shard on an upload that did not
   actually store the bytes. There is no recovery from it — the shard is canonical, and the
   ledger finds out at the next verify, when there is nothing left to restore from."
-  (:require [clojure.java.io :as io]
+  (:require [kotoba.lang.error :as kerror] [clojure.java.io :as io]
             [kotoba.test :refer [deftest is testing]]
             [rasen.methods.kotoba :as k]
             [rasen.methods.ledger-shards :as ls]
@@ -131,13 +131,13 @@
 (deftest archiving-without-an-index-is-refused
   (let [root (tmp-root)]
     (try
-      (is (thrown? clojure.lang.ExceptionInfo
+      (is (thrown? kerror/ExceptionInfo
                    (ar/archive! root {:store-fn (fn [& _] true)}))
           "no index means nothing is known to be sealed")
       (finally (rm-r root)))))
 
 (deftest no-store-fn-is-refused
-  (is (thrown? clojure.lang.ExceptionInfo (ar/archive! (tmp-root) {}))))
+  (is (thrown? kerror/ExceptionInfo (ar/archive! (tmp-root) {}))))
 
 ;; ── restoring ───────────────────────────────────────────────────────────────
 (deftest a-freed-shard-comes-back-and-the-ledger-verifies-again
@@ -159,7 +159,7 @@
       (ar/archive! root {:store-fn store-fn})
       (swap! store update (ar/object-key "rasen-genome" 0) #(str % "\n;; tampered"))
       (let [e (try (ar/ensure-local! root 0 {:store-fn store-fn}) nil
-                   (catch clojure.lang.ExceptionInfo ex ex))]
+                   (catch kerror/ExceptionInfo ex ex))]
         (is (some? e))
         (is (re-find #"do not match the manifest" (ex-message e)))
         (is (not (.exists (io/file root "shards" (ls/shard-name 0))))
@@ -170,7 +170,7 @@
   (let [root (tmp-root)]
     (try
       (seed! root 2)
-      (is (thrown? clojure.lang.ExceptionInfo (ar/ensure-local! root 9 {:store-fn (fn [& _] true)}))
+      (is (thrown? kerror/ExceptionInfo (ar/ensure-local! root 9 {:store-fn (fn [& _] true)}))
           "not on disk and not in the manifest is UNVERIFIED, not empty")
       (finally (rm-r root)))))
 

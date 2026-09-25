@@ -6,7 +6,7 @@
   real IPFS daemon or network is needed.
 
   Pins the manifest structure and PUBLISH.md shape against hand-checked expectations."
-  (:require [kotoba.test :refer [deftest is testing run-tests]]
+  (:require [kotoba.bytes :as kbytes] [kotoba.test :refer [deftest is testing run-tests]]
             [kotoba.lang.text :as str]
             [rasen.methods.publish :as P]
             [rasen.methods.cid :as CID]
@@ -163,7 +163,7 @@
      (deftest test-cid-matches-between-publish-and-cid-lib
        ;; Verifies cid-lib/cidv1-raw is the SAME function used by the publish leg
        (let [content "test genome data\n"
-             ba      (.getBytes content "UTF-8")
+             ba      (kbytes/utf8-bytes content)
              cid1    (CID/cidv1-raw ba)
              cid2    (CID/cidv1-raw content)]
          (is (= cid1 cid2))

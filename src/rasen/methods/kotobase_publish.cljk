@@ -28,7 +28,7 @@
   (:require [kotoba.lang.text :as str]
             [rasen.methods.kotoba :as k]
             [rasen.methods.ledger-shards :as ls]
-            #?(:clj [clojure.java.io :as io])))
+            #?(:clj [kotoba.io :as io])))
 
 ;; ── pure: ledger datom → kotobase tx-data ───────────────────────────────────
 (defn kw-or-string
@@ -95,11 +95,11 @@
        "The projection's progress, or nil when there is none. nil is UNVERIFIED — it means no
        run has recorded anything here, not that the projection is empty and correct."
        [root]
-       (let [f (watermark-path root)] (when (.exists f) (k/parse-edn (slurp f)))))
+       (let [f (watermark-path root)] (when (io/exists? f) (k/parse-edn (slurp f)))))
 
      (defn write-watermark! [root wm]
        (let [f (watermark-path root)]
-         (when-let [p (.getParentFile f)] (.mkdirs p))
+         (when-let [p (io/parent-file f)] (io/mkdirs p))
          (spit f (str ";; rasen 螺旋 — kotobase.net projection watermark. Generated; progress only.\n"
                       ";; The ledger is canonical; this records how much of it the projection has\n"
                       ";; ACKNOWLEDGED, never how much was sent.\n"

@@ -17,7 +17,7 @@
   (normalisation + EDN serialisation + content-address); the live `urllib`/`ipfs`/`subprocess`
   pipeline (`ingest`/`main`/`_get_json`) is host I/O kept behind #?(:clj …). House style: Python
   ':…' keyword strings stay strings; pure fns; reuses rasen.methods.analyze + rasen.methods.cid."
-  (:require [kotoba.lang.text :as str]
+  (:require [kotoba.bytes :as kbytes] [kotoba.io :as kio] [kotoba.lang.text :as str]
             [rasen.methods.analyze :as analyze]
             [rasen.methods.cid :as cidlib]
             #?(:clj [clojure.java.io :as io])))
@@ -368,9 +368,9 @@
                datoms   (emit* nodes edges res 1)
                datom-f  (io/file outdir "ingested-genome-datoms.kotoba.edn")
                _        (spit datom-f datoms)
-               g-bytes  (java.nio.file.Files/readAllBytes (.toPath graph-f))
+               g-bytes  (kio/read-all-bytes graph-f)
                cid      (cidv1* g-bytes)
-               d-cid    (cidv1* (.getBytes datoms "UTF-8"))
+               d-cid    (cidv1* (kbytes/utf8-bytes datoms))
                prov     {:offline true :artifact {:graph_edn (.getName graph-f) :bytes (alength g-bytes)
                                                   :cid cid :datoms_cid d-cid}
                          :counts {:nodes (count nodes) :edges (count edges)}}]

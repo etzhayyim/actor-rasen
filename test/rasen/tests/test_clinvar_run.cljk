@@ -4,7 +4,7 @@
   A download that stops early decompresses cleanly up to the cut and then ends. The loop
   cannot tell that from a short release, so most of what is asserted here is that a truncated
   or short-read source never reports :complete."
-  (:require [kotoba.bytes :as kbytes] [kotoba.io :as kio] [clojure.java.io :as io]
+  (:require [kotoba.lang.error :as kerror] [kotoba.bytes :as kbytes] [kotoba.io :as kio] [clojure.java.io :as io]
             [kotoba.lang.text :as str]
             [kotoba.test :refer [deftest is testing]]
             [rasen.methods.clinvar :as cv]
@@ -118,7 +118,7 @@
                                              (int (* 0.6 n)))]
           (io/copy bytes cut)
           (let [e (try (run/run! root {:source (str cut) :batch {:max-datoms 200}}) nil
-                       (catch clojure.lang.ExceptionInfo ex ex))]
+                       (catch kerror/ExceptionInfo ex ex))]
             (is (some? e) "a stream that ends mid-member must not return a result")
             (is (contains? #{:truncated :corrupt} (:reason (ex-data e)))
                 "refused as a broken stream, not for some unrelated reason")))
@@ -151,7 +151,7 @@
       (run/run! root {:source (str gz) :fingerprint "release-A" :batch {:max-datoms 200}})
       (let [e (try (run/run! root {:source (str gz) :fingerprint "release-B" :resume? true
                                    :batch {:max-datoms 200}}) nil
-                   (catch clojure.lang.ExceptionInfo ex ex))]
+                   (catch kerror/ExceptionInfo ex ex))]
         (is (some? e))
         (is (str/includes? (ex-message e) "different release")
             "row offsets are not stable across releases"))
@@ -176,13 +176,13 @@
       (finally (rm-r d)))))
 
 (deftest no-source-is-refused
-  (is (thrown? clojure.lang.ExceptionInfo (run/run! (tmp-dir) {}))))
+  (is (thrown? kerror/ExceptionInfo (run/run! (tmp-dir) {}))))
 
 (deftest expect-bytes-against-a-url-is-refused-not-ignored
   (testing "a stream's size is not knowable before the read; ignoring the caller's declared
             size would look exactly like having checked it"
     (let [e (try (run/run! (tmp-dir) {:source "https://example.invalid/x.gz" :expect-bytes 42})
-                 nil (catch clojure.lang.ExceptionInfo ex ex))]
+                 nil (catch kerror/ExceptionInfo ex ex))]
       (is (some? e))
       (is (= :expect-bytes-unmeasurable (:reason (ex-data e)))))))
 
@@ -218,7 +218,7 @@
           (io/copy bytes cut)
           (try (run/run! root {:source (str cut) :fingerprint "rel-1"
                                :batch {:max-datoms 200}})
-               (catch clojure.lang.ExceptionInfo _ nil))
+               (catch kerror/ExceptionInfo _ nil))
           (let [cp (run/read-checkpoint root)]
             (is (some? cp) "a cut run must leave a checkpoint")
             (is (pos? (get cp ":rows/read")) "carrying the progress it actually made")

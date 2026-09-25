@@ -6,11 +6,11 @@
   < 256 KiB; verified vs `ipfs` 0.41.0). Single-block by design — a bounded public
   slice (G5/G7) fits one raw block; > 256 KiB chunks into a UnixFS dag-pb tree.
   The public surface (base32 / cidv1-raw / single-block-limit) is unchanged."
-  (:require [multiformats.core :as mf]))
+  (:require [kotoba.bytes :as kbytes] [multiformats.core :as mf]))
 
 #?(:clj
    (defn- ->ba ^bytes [data]
-     (cond (string? data) (.getBytes ^String data "UTF-8")
+     (cond (string? data) (kbytes/utf8-bytes ^String data)
            (bytes? data)  data
            :else (byte-array (map #(unchecked-byte (bit-and (int %) 0xff)) data)))))
 
